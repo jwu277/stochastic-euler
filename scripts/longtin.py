@@ -31,8 +31,8 @@ def compute_isi(x, dt):
     zc = []
 
     for i in range(len(x) - 1):
-        # Detect zero-crossing when consecutive data points are oppositely signed
-        if x[i] * x[i+1] <= 0:
+        # Detect zero-crossing on falling edge
+        if x[i] > 0 and x[i+1] < 0:
             zc.append(i * dt)
 
     return np.diff(zc)
@@ -41,7 +41,7 @@ def compute_isi(x, dt):
 def main():
 
     # Time in s
-    tmax = 1000000
+    tmax = 10000
     w = 500 * np.pi
     tc = 0.1
     lam = 1 / tc

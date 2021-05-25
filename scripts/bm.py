@@ -12,7 +12,7 @@ def main():
 
     neuron = BinaryMarkov(pqs, psq, dt)
 
-    _isi = isi.isi(neuron.spike_times(1000000))
+    _isi = isi.isi(isi.spike_times_zc(neuron.signal(1000000), dt))
 
     # Expected
     t = np.arange(0, 160, 0.1)

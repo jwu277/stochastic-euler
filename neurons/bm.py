@@ -8,6 +8,7 @@ from scipy.stats import uniform
 
 class BinaryMarkov:
 
+
     # pqs = quiescence --> spike transition probability
     # psq = spike --> quiescence transition probability
     # dt = time increment between transitions
@@ -18,23 +19,18 @@ class BinaryMarkov:
 
 
     # tmax = time to simulate up to
-    def spike_times(self, tmax):
+    # Alternates between -1 and +1
+    def signal(self, tmax):
 
-        times = []
-        state = 0
+        sig = [-1.0]
 
         rvs = uniform.rvs(size=int(tmax / self.dt))
 
         for i in range(0, int(tmax / self.dt)):
+            if sig[-1] < 0:
+                sig.append(1.0 if rvs[i] < self.pqs else -1.0)
+            else:
+                sig.append(-1.0 if rvs[i] < self.psq else 1.0)
 
-            if state == 0:
-                if rvs[i] < self.pqs:
-                    state = 1
-
-            elif state == 1:
-                if rvs[i] < self.psq:
-                    state = 0
-                    times.append(i * self.dt)
-
-        return np.array(times)
+        return np.array(sig)
 
