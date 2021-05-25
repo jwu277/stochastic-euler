@@ -1,7 +1,7 @@
 ### Reproduction of Andre Longtin's stochastic bistable model ###
 
 
-import ito
+from util import ito
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm

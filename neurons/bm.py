@@ -1,12 +1,12 @@
-### Markov Binary Neuron Model ###
+### Binary Markov Neuron Model ###
 
 
-import ito
+from util import ito
 import numpy as np
 from scipy.stats import uniform
 
 
-class MarkovBinary:
+class BinaryMarkov:
 
     # pqs = quiescence --> spike transition probability
     # psq = spike --> quiescence transition probability
@@ -23,18 +23,18 @@ class MarkovBinary:
         times = []
         state = 0
 
-        rvs = uniform.rvs(size=(tmax // self.dt))
+        rvs = uniform.rvs(size=int(tmax / self.dt))
 
-        for i in range(0, tmax // self.dt):
+        for i in range(0, int(tmax / self.dt)):
 
             if state == 0:
                 if rvs[i] < self.pqs:
-                    times.append(i * self.dt)
                     state = 1
 
             elif state == 1:
                 if rvs[i] < self.psq:
                     state = 0
+                    times.append(i * self.dt)
 
         return np.array(times)
 
