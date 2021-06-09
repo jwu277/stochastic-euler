@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 def sim(a, b, tmax, dt, X0=0):
 
     # Initialize X
-    X = np.empty(int(tmax / dt) + 1)
+    X = np.empty((int(tmax / dt) + 1,) + np.shape(X0))
     X[0] = X0
 
     # Generate standard normal RVs

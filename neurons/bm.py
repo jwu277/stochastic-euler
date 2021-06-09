@@ -13,9 +13,9 @@ class BinaryMarkov:
     # psq = spike --> quiescence transition probability
     # dt = time increment between transitions
     def __init__(self, pqs, psq, dt):
-        self.pqs = pqs
-        self.psq = psq
-        self.dt = dt
+        self._pqs = pqs
+        self._psq = psq
+        self._dt = dt
 
 
     # tmax = time to simulate up to
@@ -24,13 +24,13 @@ class BinaryMarkov:
 
         sig = [-1.0]
 
-        rvs = uniform.rvs(size=int(tmax / self.dt))
+        rvs = uniform.rvs(size=int(tmax / self._dt))
 
-        for i in range(0, int(tmax / self.dt)):
+        for i in range(0, int(tmax / self._dt)):
             if sig[-1] < 0:
-                sig.append(1.0 if rvs[i] < self.pqs else -1.0)
+                sig.append(1.0 if rvs[i] < self._pqs else -1.0)
             else:
-                sig.append(-1.0 if rvs[i] < self.psq else 1.0)
+                sig.append(-1.0 if rvs[i] < self._psq else 1.0)
 
         return np.array(sig)
 
