@@ -1,6 +1,5 @@
 from neurons.izhikevich import Izhikevich
 from util import isi
-import numpy as np
 from scipy.stats import uniform
 import matplotlib.pyplot as plt
 

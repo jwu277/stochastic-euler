@@ -23,7 +23,7 @@ def sim(a, b, tmax, dt, X0=0):
     X[0] = X0
 
     # Generate standard normal RVs
-    N = norm.rvs(size=len(X))
+    N = norm.rvs(size=X.shape)
 
     # Euler iterations
     for i in range(1, len(X)):
