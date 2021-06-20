@@ -8,8 +8,6 @@ from scipy.stats import binom
 
 class MorrisLecar:
 
-    ## TODO: make neuron stochastic
-
     ## Neuron governed by following equations:
     ## m = 0.5 * (1 + tanh((v - V1) / V2))
     ## alpha = 0.5 * phi * cosh((v - V3) / (2 * V4)) * (1 + tanh((v - V3) / V4))
