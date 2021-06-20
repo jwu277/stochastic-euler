@@ -11,13 +11,14 @@ def main():
 
     psection = -30 # Poincare section
     sthresh = 0 # spiking threshold
+    vdiff = 2.5 # orbit amplitude minimum
 
-    t1 = int(7200 / dt)
-    t2 = int(9000 / dt)
+    t1 = int(7700 / dt)
+    t2 = int(8100 / dt)
 
-    sig = np.load('picklejar/phi_noise_t1.npy')
+    sig = np.load('picklejar/phi_noise_t2.npy')
 
-    ot = get_orbit_times2(sig)
+    ot = get_orbit_times2(sig, vdiff)
 
     plot.tr(sig[:,0], dt)
     plt.xlabel('t')
