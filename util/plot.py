@@ -1,8 +1,14 @@
-## Util for generating input currents
+## Util for plotting data
 
 
 import numpy as np
 import matplotlib.pyplot as plt
+
+
+# Histogram of nonnegative integer data
+def int_hist(data):
+    hist = np.bincount(data)
+    plt.bar(np.arange(len(hist)), hist, width=1.0)
 
 
 # Plot time response

@@ -10,13 +10,18 @@ def main():
     dt = 0.1
 
     psection = -30 # Poincare section
-    sthresh = 0 # spiking threshold
     vdiff = 2.5 # orbit amplitude minimum
+    sthresh = 20 # spiking threshold
 
-    t1 = int(7700 / dt)
-    t2 = int(8100 / dt)
+    # t1 = int(7700 / dt)
+    # t2 = int(8100 / dt)
 
-    sig = np.load('picklejar/phi_noise_t2.npy')
+    sig = np.load('picklejar/phi_noise_t4.npy')
+    # isi = get_isi2(sig, vdiff, sthresh, dt)
+
+    # print(isi.shape)
+
+    # plt.hist(isi, bins=100, range=(0, 600))
 
     ot = get_orbit_times2(sig, vdiff)
 
@@ -34,20 +39,36 @@ def main():
             plt.axvline(ot[i] * dt, c='g', ls='--')
             spiked = False
     
+    # plt.figure()
+
+    # tmax = 100.0 # s
+
+    # cs = consec_spikes(sig, vdiff, sthresh)
+    # print(np.bincount(cs))
+    # print(f'Freq (per sec): {np.sum(cs) / tmax}')
+    # print(f'Mean: {np.mean(cs)}')
+    # print(f'SDev: {np.std(cs, ddof=1)}')
+
+    # plot.int_hist(cs)
+    # plt.yscale('log')
+    # plt.title('Histogram of Consecutive Spike Count')
+    # plt.xlabel('Consecutive Spikes')
+    # plt.ylabel('# Occurences')
+
     # Animated pp
-    fig, ax = plt.subplots()
+    # fig, ax = plt.subplots()
 
-    t = np.arange(t1, t2) * dt
-    line, = ax.plot(sig[t1:t2,0], sig[t1:t2,1])
+    # t = np.arange(t1, t2) * dt
+    # line, = ax.plot(sig[t1:t2,0], sig[t1:t2,1])
 
-    def animate(t_idx):
-        line.set_xdata(sig[t1:t_idx,0])
-        line.set_ydata(sig[t1:t_idx,1])
+    # def animate(t_idx):
+    #     line.set_xdata(sig[t1:t_idx,0])
+    #     line.set_ydata(sig[t1:t_idx,1])
 
-    plt.xlabel('v')
-    plt.ylabel('w')
+    # plt.xlabel('v')
+    # plt.ylabel('w')
     
-    ani = animation.FuncAnimation(fig, animate, np.arange(t1, t2, 100))
+    # ani = animation.FuncAnimation(fig, animate, np.arange(t1, t2, 100))
 
     plt.show()
 

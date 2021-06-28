@@ -30,7 +30,7 @@ def get_orbit_times2(signal, vdiff):
             # w should be decreasing at next minima for a valid orbit
             j = 0
 
-            while True:
+            while i + j < len(v) - 2:
 
                 if v[i+j] > v[i+j+1] and v[i+j+1] < v[i+j+2]:
                     if v[i+1] - v[i+j+1] > vdiff:
@@ -51,4 +51,45 @@ def is_spike(orbit, sthresh):
 # Convention that orbits start at maximum value
 def is_spike2(orbit, sthresh):
     return orbit[0,0] > sthresh
+
+
+# Gets array of consecutive spike counts
+def consec_spikes(signal, vdiff, sthresh):
+
+    sc = []
+    sctr = 0
+
+    ot = get_orbit_times2(signal, vdiff)
+
+    spiked = False
+
+    for i in range(len(ot) - 1):
+        if is_spike2(signal[ot[i]:ot[i+1]], sthresh):
+            sctr += 1
+            spiked = True
+        elif spiked:
+            sc.append(sctr)
+            sctr = 0
+            spiked = False
+
+    return sc
+
+
+# Gets spike times (indices)
+def get_spike_times2(signal, vdiff, sthresh):
+
+    st = []
+
+    ot = get_orbit_times2(signal, vdiff)
+
+    for i in range(len(ot) - 1):
+        if is_spike2(signal[ot[i]:ot[i+1]], sthresh):
+            st.append(ot[i])
+    
+    return np.array(st)
+
+
+# Gets ISIs
+def get_isi2(signal, vdiff, sthresh, dt):
+    return np.diff(get_spike_times2(signal, vdiff, sthresh)) * dt
 

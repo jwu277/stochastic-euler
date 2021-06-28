@@ -8,13 +8,14 @@ import matplotlib.pyplot as plt
 import time
 
 
-def trial(I_ampl, phi, Nk, dt, tmax):
+def trial(Nk, dt, tmax):
 
     # C ~ uF
     # g ~ mS
     # V ~ mV
     # t ~ ms
     
+    I_ampl = 90
     C = 20
     gL = 2.0
     gCa = 4.4
@@ -26,6 +27,8 @@ def trial(I_ampl, phi, Nk, dt, tmax):
     V2 = 18.0
     V3 = 2.0
     V4 = 30.0
+
+    phi = 0.04
 
     x0 = np.array([-40.0, 0.42])
 
@@ -41,13 +44,29 @@ def trial(I_ampl, phi, Nk, dt, tmax):
 
 def main():
 
+    epochs = 30
+
     dt = 0.1
     tmax = 100000.0
+    vdiff = 2.5 # orbit amplitude minimum
+    sthresh = 20 # spiking threshold
 
-    I_ampl = 90
+    Nk = 500
 
-    sig = trial(I_ampl, 0.04, 500, dt, tmax)
-    np.save('picklejar/phi_noise_t4.npy', sig)
+    isi = []
+
+    for i in range(epochs):
+        print(f'Starting epoch {i+1} of {epochs}...')
+        sig = trial(Nk, dt, tmax)
+        isi += list(get_isi2(sig, vdiff, sthresh, dt))
+    
+    plt.hist(isi, bins=200, range=(0, 600), label=f'$N_k = {Nk}$', density=True)
+    plt.xlabel('ISI (ms)')
+    plt.ylabel('Estimated Probability Density')
+    plt.yscale('log')
+
+    plt.legend()
+    plt.show()
 
 
 if __name__ == "__main__":

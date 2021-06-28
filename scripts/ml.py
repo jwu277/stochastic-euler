@@ -27,22 +27,22 @@ def main():
     V4 = 30.0
 
     dt = 0.1
-    tmax = 10000.0
+    tmax = 1000.0
 
     Nk = 1000
 
-    phi = 0.01
+    phi = 0.04
 
     t_avg = 0.1
-    I_ampl = 75
+    I_ampl = 90
     I = current.constant(tmax, dt, I_ampl)
     # I = current.poisson(tmax, t_avg, dt, I_ampl)
 
-    x0 = np.array([-40.0, 0.42])
+    x0 = np.array([-30.0, 0.15])
 
     t = time.time()
 
-    neuron = MorrisLecar(I, phi, C, gL, gCa, gK, VL, VCa, VK, V1, V2, V3, V4, dt, stochastic='euler', Nk=Nk)
+    neuron = MorrisLecar(I, phi, C, gL, gCa, gK, VL, VCa, VK, V1, V2, V3, V4, dt, stochastic='', Nk=Nk)
     x = neuron.signal(tmax, x0)
 
     print(time.time() - t)
