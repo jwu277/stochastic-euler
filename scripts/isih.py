@@ -51,7 +51,7 @@ def main():
     vdiff = 2.5 # orbit amplitude minimum
     sthresh = 20 # spiking threshold
 
-    Nk = 500
+    Nk = 2000
 
     isi = []
 

@@ -3,19 +3,20 @@ from util import current
 import numpy as np
 from util import plot
 from util.ml import *
+from util.dyn import *
 import matplotlib.pyplot as plt
 
 import time
 
 
-def trial(phi, Nk, w0, dt, tmax):
+def trial(phi, Nk, v0, w0, dt, tmax):
 
     # C ~ uF
     # g ~ mS
     # V ~ mV
     # t ~ ms
     
-    I_ampl = 90
+    I_ampl = 80
     C = 20
     gL = 2.0
     gCa = 4.4
@@ -28,7 +29,7 @@ def trial(phi, Nk, w0, dt, tmax):
     V3 = 2.0
     V4 = 30.0
 
-    x0 = np.array([-40.0, 0.42])
+    x0 = np.array([v0, w0])
 
     # t_avg = 0.1
     I = current.constant(tmax, dt, I_ampl)
@@ -36,34 +37,26 @@ def trial(phi, Nk, w0, dt, tmax):
 
     t = time.time()
 
-    neuron = MorrisLecar(I, phi, C, gL, gCa, gK, VL, VCa, VK, V1, V2, V3, V4, dt, stochastic='euler', Nk=Nk)
+    neuron = MorrisLecar(I, phi, C, gL, gCa, gK, VL, VCa, VK, V1, V2, V3, V4, dt, stochastic='', Nk=Nk)
+
+    print(get_fixed_pt(neuron, x0, 200, tmax, np.array([1.0, 0.01]), dt))
+
     return neuron.signal(tmax, x0)
 
 
 def main():
 
-    epochs = 3
-
     dt = 0.1
-    tmax = 100000.0
-    vdiff = 2.5 # orbit amplitude minimum
-    sthresh = 20 # spiking threshold
+    tmax = 350.0
 
     Nk = 500
+    phi = 0.04
 
-    isi = []
+    sig = trial(phi, Nk, -30, 0.13, dt, tmax)
 
-    for i in range(epochs):
-        print(f'Starting epoch {i+1} of {epochs}...')
-        sig = trial(Nk, dt, tmax)
-        isi += list(get_isi2(sig, vdiff, sthresh, dt))
-    
-    plt.hist(isi, bins=100, range=(0, 600), label=f'$N_k = {Nk}$', density=True)
-    plt.xlabel('ISI (ms)')
-    plt.ylabel('Estimated Probability Density')
-    plt.yscale('log')
-
-    plt.legend()
+    plot.pp_scatter(sig)
+    plt.xlabel('v')
+    plt.ylabel('w')
     plt.show()
 
 

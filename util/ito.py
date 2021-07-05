@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 def sim(a, b, tmax, dt, X0=0):
 
     # Initialize X
-    X = np.empty((int(tmax / dt) + 1,) + np.shape(X0))
+    X = np.empty((int(tmax / abs(dt)) + 1,) + np.shape(X0))
     X[0] = X0
 
     # Generate standard normal RVs
@@ -27,7 +27,7 @@ def sim(a, b, tmax, dt, X0=0):
 
     # Euler iterations
     for i in range(1, len(X)):
-        X[i] = X[i-1] + a(i * dt, X[i-1]) * dt + b(i * dt, X[i-1]) * np.sqrt(dt) * N[i]
+        X[i] = X[i-1] + a(i * dt, X[i-1]) * dt + b(i * dt, X[i-1]) * np.sqrt(np.heaviside(dt, 0)) * N[i]
     
     return X
 

@@ -32,6 +32,8 @@ class MorrisLecar:
         self._dt = dt
         self._stochastic = stochastic
         self._Nk = Nk
+
+        self._stochastic_store = self._stochastic
     
 
     # Deterministic Euler part
@@ -80,4 +82,18 @@ class MorrisLecar:
             b = lambda t, x: 0
 
         return ito.sim(a, b, tmax, self._dt, x0)
+    
+
+    # Sets time direction
+    # +1 = forwards
+    # -1 = backwards
+    def set_time_dir(self, dir):
+
+        self._dt = dir * abs(self._dt)
+
+        # Noise doesn't make sense if time is backwards
+        if dir > 0:
+            self._stochastic = self._stochastic_store
+        else:
+            self._stochastic = None
 
