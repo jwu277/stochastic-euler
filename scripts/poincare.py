@@ -9,14 +9,14 @@ import matplotlib.pyplot as plt
 import time
 
 
-def trial(phi, Nk, v0, w0, dt, tmax):
+def gen_neuron(dt, tmax):
 
     # C ~ uF
     # g ~ mS
     # V ~ mV
     # t ~ ms
     
-    I_ampl = 80
+    I_ampl = 90
     C = 20
     gL = 2.0
     gCa = 4.4
@@ -29,34 +29,74 @@ def trial(phi, Nk, v0, w0, dt, tmax):
     V3 = 2.0
     V4 = 30.0
 
-    x0 = np.array([v0, w0])
+    Nk = 500
+    phi = 0.04
 
-    # t_avg = 0.1
     I = current.constant(tmax, dt, I_ampl)
-    # I = current.poisson(tmax, t_avg, dt, I_ampl)
 
-    t = time.time()
-
-    neuron = MorrisLecar(I, phi, C, gL, gCa, gK, VL, VCa, VK, V1, V2, V3, V4, dt, stochastic='', Nk=Nk)
-
-    print(get_fixed_pt(neuron, x0, 200, tmax, np.array([1.0, 0.01]), dt))
-
-    return neuron.signal(tmax, x0)
+    return MorrisLecar(I, phi, C, gL, gCa, gK, VL, VCa, VK, V1, V2, V3, V4, dt, stochastic='', Nk=Nk)
 
 
 def main():
 
     dt = 0.1
-    tmax = 350.0
+    tmax = 600.0
 
-    Nk = 500
-    phi = 0.04
+    # 1. Generate neuron
+    neuron = gen_neuron(dt, tmax)
 
-    sig = trial(phi, Nk, -30, 0.13, dt, tmax)
+    # 2. Find fixed point
+    tmax1 = 500.0
+    tmax2 = 550.0
+    eq0 = np.array([-30, 0.13])
+    dist = np.array([0.4, 0.005])
+    eq = get_fixed_pt(neuron, eq0, tmax1, tmax2, dist, dt)
 
-    plot.pp_scatter(sig)
+    if eq is None:
+        print("Failed to find fixed point!")
+        return
+    
+    v0, w0 = eq
+    print(eq)
+
+    # 3. Generate signal
+    # TODO sweep through psi
+    x0 = np.array([v0, 0.08])
+    signal = neuron.signal(tmax, x0)
+
+    # 4. Truncate signal to one cycle
+    tmin = 10 # minimum cycle time, prevents noisy backwash    
+    cycle = poincare_cycle(signal, v0, w0, tmin, dt)
+
+    if cycle is None:
+        print("Failed to obtain Poincare cycle!")
+        return
+    
+    # 5. Analyze signal
+
+    # 5a. T(psi)
+    t_cyc = cycle.shape[0] * dt
+    print(f'T(psi): {t_cyc}')
+
+    # 5b. P(psi)
+    p_map = cycle[-1,1] # TODO: linear interpolation
+    print(f'P(psi): {p_map}')
+
+    # 5c. Determine if spiking or subthreshold
+    vthresh = 20
+    spikeb = np.amax(cycle[:,0]) > vthresh
+    print(f'Spiking: {spikeb}')
+
+    # 6. Plotting
+    plot.pp(cycle)
     plt.xlabel('v')
     plt.ylabel('w')
+
+    plt.figure()
+    plot.tr(cycle[:,0], dt)
+    plt.xlabel('t')
+    plt.ylabel('v')
+
     plt.show()
 
 

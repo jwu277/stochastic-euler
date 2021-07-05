@@ -93,3 +93,29 @@ def get_spike_times2(signal, vdiff, sthresh):
 def get_isi2(signal, vdiff, sthresh, dt):
     return np.diff(get_spike_times2(signal, vdiff, sthresh)) * dt
 
+
+# Gets the first Poincare crossing time (index)
+def poincare_ct(signal, v0, w0):
+    for i in range(signal.shape[0] - 1):
+        if (signal[i][0] < v0 and signal[i+1][0] > v0) and (signal[i][1] < w0):
+            return i + 1
+
+
+# Gets a Poincare cycle
+# tmin is minimum cycle time to prevent noisy backwash
+# Returns None if failed
+def poincare_cycle(signal, v0, w0, tmin, dt):
+    
+    pct1 = poincare_ct(signal, v0, w0)
+    if pct1 is None:
+        return
+
+    tmin_idx = int(tmin / dt)
+    
+    pct2_raw = poincare_ct(signal[pct1 + tmin_idx:], v0, w0)
+    if pct2_raw is None:
+        return
+    pct2 = pct2_raw + pct1 + tmin_idx
+
+    return signal[pct1:pct2]
+    
