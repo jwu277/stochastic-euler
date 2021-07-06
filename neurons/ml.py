@@ -88,11 +88,13 @@ class MorrisLecar:
     # +1 = forwards
     # -1 = backwards
     def set_time_dir(self, dir):
-
         self._dt = dir * abs(self._dt)
+        if dir < 0:
+            self.set_noise(False)
 
-        # Noise doesn't make sense if time is backwards
-        if dir > 0:
+
+    def set_noise(self, noiseb):
+        if noiseb:
             self._stochastic = self._stochastic_store
         else:
             self._stochastic = None
