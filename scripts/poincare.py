@@ -1,3 +1,4 @@
+from multiprocessing import Pool
 from neurons.ml import MorrisLecar
 from util import current
 import numpy as np
@@ -7,6 +8,9 @@ from util.dyn import *
 import matplotlib.pyplot as plt
 
 import time
+
+
+THREADS = 6
 
 
 def gen_neuron(dt, tmax, I_ampl, phi, Nk):
@@ -61,23 +65,40 @@ def cycle(neuron, v0, w0, tmax, dt, tmin, vthresh, psi):
     return [psi, t_cyc, p_map, spikeb]
 
 
+def _cycles_psi(neuron, v0, w0, tmax, dt, tmin, vthresh, psi, trials):
+
+    trial = []
+
+    for i in range(trials):
+        res = cycle(neuron, v0, w0, tmax, dt, tmin, vthresh, psi)
+        if res is not None:
+            trial.append(res)
+    
+    if len(trial) > 0:
+        return np.average(trial, axis=0)
+
+
+def _cycles_psi_wrapper(args):
+    return _cycles_psi(*args)
+
+
 def cycles(neuron, v0, w0, tmax, dt, tmin, vthresh, psi_arr, trials=1):
-    
-    data = []
-    
-    for psi in psi_arr:
-        
-        trial = []
 
-        for i in range(trials):
-            res = cycle(neuron, v0, w0, tmax, dt, tmin, vthresh, psi)
-            if res is not None:
-                trial.append(res)
-        
-        if len(trial) > 0:
-            data.append(np.average(trial, axis=0))
+    n = len(psi_arr)
 
-    return np.array(data)
+    with Pool(THREADS) as p:
+        return np.array(list(filter(lambda v: v is not None, p.map(_cycles_psi_wrapper, zip([neuron]*n, [v0]*n, [w0]*n, [tmax]*n, [dt]*n, [tmin]*n, [vthresh]*n, psi_arr, [trials]*n)))))
+
+
+# Gets crossing point of the P(psi) map
+# Deterministic sim
+def get_ulc(neuron, v0, w0, tmax, dt, tmin, vthresh, psi_arr):
+
+    neuron.set_noise(False)
+    pdata = cycles(neuron, v0, w0, tmax, dt, tmin, vthresh, psi_arr, trials=1)
+    neuron.set_noise(True)
+
+    return pdata[:,0][np.where(np.diff(np.sign(pdata[:,2] - pdata[:,0])))[0][0]]
 
 
 def main():
@@ -108,13 +129,24 @@ def main():
     v0, w0 = eq
     print(f'Fixed point: {eq}')
 
-    # 3. Poincare analysis
+    # 3. Get unstable limit cycle psi
     tmin = 10 # minimum cycle time, prevents noisy backwash
     vthresh = 20
-    
-    psi_arr = np.arange(0.00, 0.03, 0.001)
+    psi_check = np.arange(0, 0.03, 0.001)
+
+    psi_ulc = get_ulc(neuron, v0, w0, tmax, dt, tmin, vthresh, psi_check)
+    print(f'psi_ulc: {psi_ulc}')
+
+    # 4. Poincare analysis
+    # psi_range = psi_ulc +- delta
+
+    delta = 0.001
+    psi_range = np.linspace(psi_ulc - delta, psi_ulc + delta, 30)
     trials = 40
-    pdata = cycles(neuron, v0, w0, tmax, dt, tmin, vthresh, psi_arr, trials)
+
+    t = time.time()
+    pdata = cycles(neuron, v0, w0, tmax, dt, tmin, vthresh, psi_range, trials)
+    print(f'Cycles time: {time.time() - t}')
 
     plt.scatter(pdata[:,0], pdata[:,1])
     plt.title(f'I = {I_ampl} | $\\phi$ = {phi} | $N_k$ = {Nk} | Trials = {trials}')
