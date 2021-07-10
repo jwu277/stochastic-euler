@@ -2,6 +2,7 @@
 
 
 from util import ito
+from util import integrate
 import numpy as np
 from scipy.stats import binom
 
@@ -15,7 +16,8 @@ class MorrisLecar:
     ## dv/dt = (I - gCa * m * (v - VCa) - gK * w * (v - VK) - gL * (v - VL)) / C
     ## dw/dt = alpha * (1 - w) - beta * w
     ## I is e.g. synaptic input
-    def __init__(self, I, phi, C, gL, gCa, gK, VL, VCa, VK, V1, V2, V3, V4, dt, stochastic=None, Nk=None):
+    def __init__(self, I, phi, C, gL, gCa, gK, VL, VCa, VK, V1, V2, V3, V4, dt, stochastic=None, Nk=None, method='SE'):
+
         self._I = I
         self._phi = phi
         self._C = C
@@ -32,8 +34,10 @@ class MorrisLecar:
         self._dt = dt
         self._stochastic = stochastic
         self._Nk = Nk
+        self._method = method
 
         self._stochastic_store = self._stochastic
+        self._method_store = self._method
     
 
     # Deterministic Euler part
@@ -74,15 +78,22 @@ class MorrisLecar:
     # x0 = [v0, w0] = IC
     def signal(self, tmax, x0):
 
-        a = lambda t, x: self._a(t, x)
-
-        if self._stochastic == 'euler':
-            b = lambda t, x: self._b_euler(t, x)
+        if self._method == 'RK45':
+            a = lambda t, x: self._a(t, x)
+            return integrate.ivp(a, x0, tmax, self._dt, method='RK45')
         else:
-            b = lambda t, x: 0
 
-        return ito.sim(a, b, tmax, self._dt, x0)
-    
+            # Default = stochastic euler
+
+            a = lambda t, x: self._a(t, x)
+
+            if self._stochastic == 'euler':
+                b = lambda t, x: self._b_euler(t, x)
+            else:
+                b = lambda t, x: 0
+
+            return ito.sim(a, b, tmax, self._dt, x0)
+
 
     # Sets time direction
     # +1 = forwards
@@ -98,4 +109,12 @@ class MorrisLecar:
             self._stochastic = self._stochastic_store
         else:
             self._stochastic = None
+    
+
+    def set_method(self, method):
+        self._method = method
+    
+
+    def restore_method(self):
+        self._method = self._method_store
 
