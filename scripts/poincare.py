@@ -20,7 +20,6 @@ def gen_neuron(dt, tmax, I_ampl, phi, Nk):
     # V ~ mV
     # t ~ ms
     
-    
     C = 20
     gL = 2.0
     gCa = 4.4
@@ -140,13 +139,15 @@ def main():
     # 4. Poincare analysis
     # psi_range = psi_ulc +- delta
 
-    delta = 0.001
-    psi_range = np.linspace(psi_ulc - delta, psi_ulc + delta, 30)
-    trials = 40
+    delta = 0.02
+    psi_range = np.linspace(max(psi_ulc - delta, 0), psi_ulc + delta, 40)
+    trials = 50
 
     t = time.time()
     pdata = cycles(neuron, v0, w0, tmax, dt, tmin, vthresh, psi_range, trials)
     print(f'Cycles time: {time.time() - t}')
+
+    # 5. Plotting
 
     plt.scatter(pdata[:,0], pdata[:,1])
     plt.title(f'I = {I_ampl} | $\\phi$ = {phi} | $N_k$ = {Nk} | Trials = {trials}')
@@ -154,7 +155,8 @@ def main():
     plt.ylabel('Average Cycle Time')
     plt.figure()
 
-    plt.scatter(pdata[:,0], pdata[:,2])
+    plt.scatter(pdata[:,0], pdata[:,2], c='k')
+    plt.plot(pdata[:,0], pdata[:,0], ls='--', c='r')
     plt.title(f'I = {I_ampl} | $\\phi$ = {phi} | $N_k$ = {Nk} | Trials = {trials}')
     plt.xlabel('$\\psi$')
     plt.ylabel('Average $P(\\psi)$')

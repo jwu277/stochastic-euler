@@ -1,4 +1,4 @@
-### Binary Markov Neuron Model ###
+### Leaky Integrate and Fire Neuron Model ###
 
 
 from util import ito

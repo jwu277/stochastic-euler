@@ -1,4 +1,4 @@
-### Binary Markov Neuron Model ###
+### Izhikevich Neuron Model ###
 
 
 from util import ito

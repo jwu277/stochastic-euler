@@ -1,4 +1,4 @@
-### Morris-Lecar Neuron Model ###
+### Model of Morris-Lecar neuron near fixed point ###
 
 
 from util import ito
@@ -7,7 +7,9 @@ import numpy as np
 from scipy.stats import binom
 
 
-class MorrisLecar:
+# TODO
+
+class MorrisLecarQ:
 
     ## Neuron governed by following equations:
     ## m = 0.5 * (1 + tanh((v - V1) / V2))
