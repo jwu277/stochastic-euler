@@ -5,9 +5,11 @@ from util import ito
 from util import integrate
 import numpy as np
 from scipy.stats import binom
+from mlq import MorrisLecarQ
 
 
 class MorrisLecar:
+
 
     ## Neuron governed by following equations:
     ## m = 0.5 * (1 + tanh((v - V1) / V2))
@@ -117,4 +119,9 @@ class MorrisLecar:
 
     def restore_method(self):
         self._method = self._method_store
+
+
+    ## Neuron needs to be stochastic and have Nk defined to get MLQ model
+    def prod_mlq(self):
+        return MorrisLecarQ(self._phi, self._C, self._gL, self._gCa, self._gK, self._VL, self._VCa, self._VK, self._V1, self._V2, self._V3, self._V4, self._dt, self._Nk)
 
