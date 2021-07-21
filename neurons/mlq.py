@@ -1,10 +1,9 @@
 ### Model of Morris-Lecar neuron near fixed point ###
 
 
-from util import ito
-from util import integrate
 import numpy as np
-from scipy.stats import binom
+from scipy.stats import norm
+
 
 class MorrisLecarQ:
 
@@ -68,12 +67,17 @@ class MorrisLecarQ:
         return np.sqrt(alpha * (1 - w) + beta * w) / np.sqrt(self._Nk)
 
 
+    ## Deterministic part of R eqn
+    def _a(r):
+        return 1 / (2 * r) - r
+
+
     ## Initializes MLQ model parameters
     ## eq = stable fixed point
     ## dv = v increment for pderiv
     ## dw = w increment for pderiv
     ## psic = cutoff psi value
-    def init(self, eq, dv, dw, psic):
+    def init(self, eq, dv, dw):
 
         self._M = np.array([[(self._f(eq + [dv, 0]) - self._f(eq)) / dv, (self._f(eq + [0, dw]) - self._f(eq)) / dw],
             [(self._g(eq + [dv, 0]) - self._g(eq)) / dv, (self._g(eq + [0, dw]) - self._g(eq)) / dw]])
@@ -86,6 +90,40 @@ class MorrisLecarQ:
         self._omega = np.imag(eig)
         self._tau = np.sqrt(- self._sigma ** 2 * self._M[0][1] / (2 * self._omega ** 2 * self._M[1][0]))
 
-        Qinv = np.array([[-1/self._omega, -(self._M[0][0] + self._lambda) / (self._omega * self._M[1][0])], [0, 1/self._M[1][0]]])
-        self._Rthresh = (np.sqrt(self._lambda) / self._tau) * np.linalg.norm(np.matmul(Qinv, [0, -psic]))
+        self._Qinv = np.array([[-1/self._omega, -(self._M[0][0] + self._lambda) / (self._omega * self._M[1][0])], [0, 1/self._M[1][0]]])
+        
 
+    ## One trial to get spiking time
+    ## psi0 = initial psi
+    ## psic = psi cutoff
+    def trial(self, psi0, psic, gensize=10000):
+
+        R0 = (np.sqrt(self._lambda) / self._tau) * np.linalg.norm(np.matmul(self._Qinv, [0, -psi0]))
+        Rthresh = (np.sqrt(self._lambda) / self._tau) * np.linalg.norm(np.matmul(self._Qinv, [0, -psic]))
+
+        return self._trial_r(R0, Rthresh, gensize)
+
+
+    ## One trial to get spiking time
+    ## R0 = initial R
+    ## Rthresh = R threshold
+    ## gensize = number of Gaussian RVs to generate at once
+    def _trial_r(self, R0, Rthresh, gensize):
+        
+        rvs = norm.rvs(size=gensize)
+        ctr = 0
+
+        r = R0
+        sqdt = np.sqrt(self._dt)
+
+        while r < Rthresh:
+            
+            r += self._a(r) * self._dt + rvs[ctr % gensize] * sqdt
+
+            ctr += 1
+
+            if ctr % gensize == 0:
+                rvs = norm.rvs(size=gensize)
+                ctr = 0
+
+        return ctr * self._dt
