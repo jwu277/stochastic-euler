@@ -13,8 +13,8 @@ class MorrisLecar:
     ## m = 0.5 * (1 + tanh((v - V1) / V2))
     ## alpha = 0.5 * phi * cosh((v - V3) / (2 * V4)) * (1 + tanh((v - V3) / V4))
     ## beta = 0.5 * phi * cosh((v - V3) / (2 * V4)) * (1 - tanh((v - V3) / V4))
-    ## dv/dt = (I - gCa * m * (v - VCa) - gK * w * (v - VK) - gL * (v - VL)) / C
-    ## dw/dt = alpha * (1 - w) - beta * w
+    ## dv = [(I - gCa * m * (v - VCa) - gK * w * (v - VK) - gL * (v - VL)) / C] dt
+    ## dw = [alpha * (1 - w) - beta * w] dt + stochastics
     ## I is e.g. synaptic input
     def __init__(self, I, phi, C, gL, gCa, gK, VL, VCa, VK, V1, V2, V3, V4, dt, stochastic=None, Nk=None, method='SE'):
 
