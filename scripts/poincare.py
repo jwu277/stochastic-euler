@@ -100,6 +100,29 @@ def get_ulc(neuron, v0, w0, tmax, dt, tmin, vthresh, psi_arr):
     return pdata[:,0][np.where(np.diff(np.sign(pdata[:,2] - pdata[:,0])))[0][0]]
 
 
+# Histogram of spiking proportion vs P(psi)
+# Data = list of [p_map, spikeb]
+# binsize = histogram bin size
+# Returns bins and bin heights
+def spike_hist(data, binsize):
+
+    minp = np.amin(data[:,0])
+    maxp = np.amax(data[:,0])
+
+    # Init arrays
+    hist_spike = np.zeros(int((maxp - minp) / binsize) + 1)
+    hist_tot = np.zeros(len(hist_spike))
+
+    for entry in data:
+
+        idx = int((entry[0] - minp) / binsize)
+
+        hist_spike[idx] += entry[1]
+        hist_tot[idx] += 1
+    
+    return np.arange(len(hist_spike)) * binsize, hist_spike / hist_tot
+
+
 def main():
 
     dt = 0.1
@@ -161,10 +184,20 @@ def main():
     plt.xlabel('$\\psi$')
     plt.ylabel('Average $P(\\psi)$')
     plt.figure()
-
+    
     plt.scatter(pdata[:,0], pdata[:,3])
     plt.title(f'I = {I_ampl} | $\\phi$ = {phi} | $N_k$ = {Nk} | Trials = {trials}')
     plt.xlabel('$\\psi$')
+    plt.ylabel('Spiking Frequency')
+    plt.figure()
+
+    # Spiking probability vs P(psi)
+
+    binsize = 0.001
+
+    plt.bar(*spike_hist(pdata[:, [2, 3]], binsize), width=binsize, align='edge')
+    plt.title(f'I = {I_ampl} | $\\phi$ = {phi} | $N_k$ = {Nk} | Trials = {trials}')
+    plt.xlabel('$P(\\psi)$')
     plt.ylabel('Spiking Frequency')
 
     plt.show()

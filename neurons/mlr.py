@@ -5,7 +5,7 @@ import numpy as np
 from scipy.stats import norm
 
 
-class MorrisLecarQ:
+class MorrisLecarR:
 
 
     ## Neuron governed by following equations:
@@ -69,11 +69,11 @@ class MorrisLecarQ:
 
 
     ## Deterministic part of R eqn
-    def _a(r):
+    def _a(self, r):
         return 1 / (2 * r) - r
 
 
-    ## Initializes MLQ model parameters
+    ## Initializes MLR model parameters
     ## eq = stable fixed point
     ## dv = v increment for pderiv
     ## dw = w increment for pderiv

@@ -1,11 +1,14 @@
 from neurons.ml import MorrisLecar
 from util import current
 import numpy as np
-from util import plot
 from util.ml import *
 import matplotlib.pyplot as plt
-
+from multiprocessing import Pool, Lock
 import time
+
+
+THREADS = 12
+lock = Lock()
 
 
 def trial(Nk, dt, tmax):
@@ -42,23 +45,23 @@ def trial(Nk, dt, tmax):
     return neuron.signal(tmax, x0)
 
 
+def _get_isi_wrapper(args):
+    return get_isi2(trial(args[0], args[1], args[2]), args[3], args[4], args[1])
+
+
 def main():
 
-    epochs = 30
+    epochs = 3200
 
     dt = 0.1
-    tmax = 100000.0
+    tmax = 1000.0
     vdiff = 2.5 # orbit amplitude minimum
     sthresh = 20 # spiking threshold
 
-    Nk = 2000
+    Nk = 2000000
 
-    isi = []
-
-    for i in range(epochs):
-        print(f'Starting epoch {i+1} of {epochs}...')
-        sig = trial(Nk, dt, tmax)
-        isi += list(get_isi2(sig, vdiff, sthresh, dt))
+    with Pool(THREADS) as p:
+        isi = np.concatenate(p.map(_get_isi_wrapper, [(Nk, dt, tmax, vdiff, sthresh)] * epochs))
     
     plt.hist(isi, bins=200, range=(0, 600), label=f'$N_k = {Nk}$', density=True)
     plt.xlabel('ISI (ms)')
