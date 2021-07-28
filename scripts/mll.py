@@ -1,5 +1,3 @@
-from multiprocessing import Pool
-
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -7,11 +5,9 @@ from neurons.ml import MorrisLecar
 
 from util import current
 from util import dyn
+from util import plot
 
 import time
-
-
-THREADS = 12
 
 
 def _gen_neuron(dt):
@@ -56,23 +52,12 @@ def _get_eq(neuron, dt):
     return dyn.get_fixed_pt(neuron, eq0, tmax1, tmax2, dist, dt)
 
 
-def _trial_wrapper(args):
-    return args[0].trial(args[1], args[2])
-
-
-def _trials(mlq, psi0, psic, ntrials):
-    with Pool(THREADS) as p:
-        return np.array(list(p.map(_trial_wrapper, [(mlq, psi0, psic)] * ntrials)))
-
-
 def main():
 
-    t = time.time()
-
-    ## 1. Generate neurons ##
+   ## 1. Generate neurons ##
     dt = 0.1
     neuron = _gen_neuron(dt)
-    mlq = neuron.gen_mlr()
+    mll = neuron.gen_mll()
 
     ## 2. Get equilibrium point ##
     eq = _get_eq(neuron, dt)
@@ -80,27 +65,29 @@ def main():
     dw = 0.002
 
     ## 3. Initialize MLQ ##
-    mlq.init(eq, dv, dw)
-    print(f'Setup time: {time.time() - t}')
+    mll.init(eq, dv, dw)
 
-    ## 4. Perform trials ##
-    
-    psi0 = 0.001
-    psic = 0.03
-    ntrials = 50000
-    
+    ## 4. Generate signal ##
+    tmax = 400.0
+    x0 = np.array([-30, 0.3])
+
     t = time.time()
-    data = _trials(mlq, psi0, psic, ntrials)
-    print(f'Trial time: {time.time() - t}')
+    x = mll.signal(tmax, x0)
+    print(f'Computation time: {time.time() - t}')
 
-    ## 5. Plot T distribution ##
+    ## 5. Plot results ##
 
-    plt.hist(data, bins=150, density=True, rwidth=1)
+    plot.tr(x[:,0], dt)
+    plt.xlabel('t')
+    plt.ylabel('v')
 
-    plt.title(f'$\\psi_0 = {psi0}$ | $\\psi_c$ = {psic}')
-    plt.xlabel('T')
-    plt.ylabel('Rel. Freq')
+    plt.figure()
 
+    plot.pp(x)
+    # plot.pp_scatter(x, c='heatmap', s=10)
+    # plot.pp_scatter(x, step=20, s=40, c='r')
+    plt.xlabel('v')
+    plt.ylabel('w')
     plt.show()
 
 

@@ -75,6 +75,8 @@ class MorrisLecarLin:
     ## psic = cutoff psi value
     def init(self, eq, dv, dw):
 
+        self._eq = eq
+
         self._M = np.array([[(self._f(eq + [dv, 0]) - self._f(eq)) / dv, (self._f(eq + [0, dw]) - self._f(eq)) / dw],
             [(self._g(eq + [dv, 0]) - self._g(eq)) / dv, (self._g(eq + [0, dw]) - self._g(eq)) / dw]])
 
@@ -85,9 +87,10 @@ class MorrisLecarLin:
         self._lambda = -np.real(eig)
         self._omega = np.imag(eig)
 
-        Qinv = np.array([[-1/self._omega, -(self._M[0][0] + self._lambda) / (self._omega * self._M[1][0])], [0, 1/self._M[1][0]]])
+        self._Q = np.array([[-self._omega, self._M[0][0] + self._lambda], [0, self._M[1][0]]])
+        self._Qinv = np.linalg.inv(self._Q)
 
-        self._C = np.matmul(Qinv, G)
+        self._C = np.matmul(self._Qinv, G)
         
 
     # Deterministic Euler part
@@ -97,13 +100,36 @@ class MorrisLecarLin:
 
 
     # 2D rotation matrix
+    # Returns array of rotation matrices if theta is an array
     def _rot2D(self, theta):
+
         c, s = np.cos(theta), np.sin(theta)
-        return np.array([[c, -s], [s, c]])
+        arr = np.array([[c, -s], [s, c]])
+
+        if np.isscalar(theta):
+            return arr
+        
+        return np.swapaxes(np.swapaxes(arr, 0, 2), 1, 2)
 
 
     def _b(self, t, x):
         return np.matmul(self._rot2D(self._omega * t), self._C)
+
+
+    # Converts og coordinates to new
+    # x = array of phase vectors
+    # t = array of times
+    # Returns array of transformed vectors
+    def _og2new(self, x, t):
+        return np.einsum('ni,nji->nj', np.dot(x - self._eq, np.transpose(self._Qinv)), self._rot2D(self._omega * t))
+    
+
+    # Converts new coordinates to og
+    # x = array of phase vectors
+    # t = array of times
+    # Returns array of transformed vectors
+    def _new2og(self, x, t):
+        return np.dot(np.einsum('ni,nji->nj', x, self._rot2D(-self._omega * t)), np.transpose(self._Q)) + self._eq
 
 
     # tmax = time to simulate up to
@@ -111,7 +137,13 @@ class MorrisLecarLin:
     def signal(self, tmax, x0):
 
         a = lambda t, x: self._a(t, x)
-        b = lambda t, x: self._b_euler(t, x)
+        b = lambda t, x: self._b(t, x)
 
-        return ito.sim(a, b, tmax, self._dt, x0)
+        # Essentially apply og2new on a scalar
+        x0new = self._og2new(np.array([x0]), np.array([0]))[0]
+
+        xv = ito.sim(a, b, tmax, self._dt, x0new, mat=True)
+        tv = np.arange(xv.shape[0]) * self._dt
+
+        return self._new2og(xv, tv)
 

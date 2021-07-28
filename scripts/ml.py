@@ -1,8 +1,10 @@
-from neurons.ml import MorrisLecar
-from util import current
 import numpy as np
-from util import plot
 import matplotlib.pyplot as plt
+
+from neurons.ml import MorrisLecar
+
+from util import current
+from util import plot
 
 import time
 
