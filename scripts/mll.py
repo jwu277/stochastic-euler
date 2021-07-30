@@ -31,7 +31,7 @@ def _gen_neuron(dt):
     
     tmax_I = 1500.0
 
-    Nk = 100000
+    Nk = 10000
 
     phi = 0.04
 
@@ -54,7 +54,7 @@ def _get_eq(neuron, dt):
 
 def main():
 
-   ## 1. Generate neurons ##
+    ## 1. Generate neurons ##
     dt = 0.1
     neuron = _gen_neuron(dt)
     mll = neuron.gen_mll()
@@ -68,8 +68,8 @@ def main():
     mll.init(eq, dv, dw)
 
     ## 4. Generate signal ##
-    tmax = 400.0
-    x0 = np.array([-30, 0.3])
+    tmax = 2000.0
+    x0 = np.array([-25, 0.13])
 
     t = time.time()
     x = mll.signal(tmax, x0)
