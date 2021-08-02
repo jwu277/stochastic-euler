@@ -29,9 +29,9 @@ def main():
     V4 = 30.0
 
     dt = 0.1
-    tmax = 1000.0
+    tmax = 2000.0
 
-    Nk = 1000
+    Nk = 2000
 
     phi = 0.04
 
@@ -44,7 +44,7 @@ def main():
 
     t = time.time()
 
-    neuron = MorrisLecar(I, phi, C, gL, gCa, gK, VL, VCa, VK, V1, V2, V3, V4, dt, stochastic='', Nk=Nk)
+    neuron = MorrisLecar(I, phi, C, gL, gCa, gK, VL, VCa, VK, V1, V2, V3, V4, dt, stochastic='euler', Nk=Nk)
     x = neuron.signal(tmax, x0)
 
     print(time.time() - t)

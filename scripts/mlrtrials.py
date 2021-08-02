@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from neurons.ml import MorrisLecar
+from neurons.mlr import MorrisLecarR
 
 from util import current
 from util import dyn
@@ -35,7 +36,7 @@ def _gen_neuron(dt):
     
     tmax_I = 1500.0
 
-    Nk = 100000
+    Nk = 2000000
 
     phi = 0.04
 
@@ -60,9 +61,9 @@ def _trial_wrapper(args):
     return args[0].trial(args[1], args[2])
 
 
-def _trials(mlq, psi0, psic, ntrials):
+def _trials(mlr, psi0, psic, ntrials):
     with Pool(THREADS) as p:
-        return np.array(list(p.map(_trial_wrapper, [(mlq, psi0, psic)] * ntrials)))
+        return np.array(list(p.map(_trial_wrapper, [(mlr, psi0, psic)] * ntrials)))
 
 
 def main():
@@ -72,7 +73,7 @@ def main():
     ## 1. Generate neurons ##
     dt = 0.1
     neuron = _gen_neuron(dt)
-    mlq = neuron.gen_mlr()
+    mlr = neuron.gen_model(MorrisLecarR)
 
     ## 2. Get equilibrium point ##
     eq = _get_eq(neuron, dt)
@@ -80,17 +81,17 @@ def main():
     dw = 0.002
 
     ## 3. Initialize MLQ ##
-    mlq.init(eq, dv, dw)
+    mlr.init(eq, dv, dw)
     print(f'Setup time: {time.time() - t}')
 
     ## 4. Perform trials ##
     
     psi0 = 0.001
-    psic = 0.03
+    psic = 0.01
     ntrials = 50000
     
     t = time.time()
-    data = _trials(mlq, psi0, psic, ntrials)
+    data = _trials(mlr, psi0, psic, ntrials)
     print(f'Trial time: {time.time() - t}')
 
     ## 5. Plot T distribution ##

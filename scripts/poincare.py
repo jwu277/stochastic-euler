@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import time
 
 
-THREADS = 6
+THREADS = 12
 
 
 def gen_neuron(dt, tmax, I_ampl, phi, Nk):

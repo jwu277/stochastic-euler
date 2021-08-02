@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from neurons.ml import MorrisLecar
+from neurons.mll import MorrisLecarLin
 
 from util import current
 from util import dyn
@@ -57,7 +58,7 @@ def main():
     ## 1. Generate neurons ##
     dt = 0.1
     neuron = _gen_neuron(dt)
-    mll = neuron.gen_mll()
+    mll = neuron.gen_model(MorrisLecarLin)
 
     ## 2. Get equilibrium point ##
     eq = _get_eq(neuron, dt)

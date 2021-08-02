@@ -1,8 +1,9 @@
 ### Model B of Morris-Lecar neuron ###
 
 
+import random
 import numpy as np
-from util import ito
+from scipy import stats
 
 
 class ModelB:
@@ -36,7 +37,40 @@ class ModelB:
 
     ## Initialize Model B parameters based on ML parameters
     def _init_params(self):
-        pass
+        
+        # NOMINAL VALUES ; TODO = CHANGE #
+
+        self._psi_a = 0.004
+        self._psi_b = 0.02
+
+        self._is_expscale = 100.0
+        self._is_exit = 0.005 # nominal value, look at histogram to determine exit...
+
+        # TODO: consider IS transition probability (anywhere in ellipse, not just L) and conditional histogram
+        
+        # Spiking vs not spiking probability is roughly logistic vs psi
+        # TODO: confirm this more accurately
+        # Convention: logistic coefficients are for spiking
+        # psi0 = logistic 50/50 point, r = logistic rate
+        self._spikep_psi0 = 0.017
+        self._spikep_r = 220
+        
+        self._t_inner_mu = 79
+        self._t_inner_sigma = 3
+
+        self._t_outer_mu = 102
+        self._t_outer_sigma = 1.5
+
+        # Polyval these coefficients
+        self._p_inner_mu = [0.5, 0]
+        self._p_inner_sigma = [0.1, 0.0005]
+
+        self._p_outer_mu = 0.022
+        self._p_outer_sigma = 0.0008
+
+
+    def _logistic(self, psi):
+        return 1 / (1 + np.exp(-self._spikep_r * (psi - self._spikep_psi0)))
 
 
     class _Res:
@@ -50,8 +84,8 @@ class ModelB:
     ## Indistinct subthreshold ##
     def _is(self, psi):
 
-        t = 0
-        p = 0
+        t = stats.expon.rvs(scale=self._is_expscale)
+        p = self._is_exit
 
         return self._Res(t, p)
 
@@ -59,8 +93,14 @@ class ModelB:
     ## Distinct subthreshold ##
     def _ds(self, psi):
 
-        t = 0
-        p = 0
+        if random.random() < self._logistic(psi):
+            # Inner distribution
+            t = stats.norm.rvs(loc=self._t_inner_mu, scale=self._t_inner_sigma)
+            p = stats.norm.rvs(loc=np.polyval(self._p_inner_mu, psi), scale=np.polyval(self._p_inner_sigma, psi))
+        else:
+            # Outer distribution
+            t = stats.norm.rvs(loc=self._t_outer_mu, scale=self._t_outer_sigma)
+            p = stats.norm.rvs(loc=self._p_outer_mu, scale=self._p_outer_sigma)
 
         return self._Res(t, p)
 
@@ -68,8 +108,8 @@ class ModelB:
     ## Spiking oscillations ##
     def _so(self, psi):
         
-        t = 0
-        p = 0
+        t = stats.norm.rvs(loc=self._t_outer_mu, scale=self._t_outer_sigma)
+        p = stats.norm.rvs(loc=self._p_outer_mu, scale=self._p_outer_sigma)
 
         return self._Res(t, p)
 
@@ -83,6 +123,9 @@ class ModelB:
 
         t = 0
         psi = psi0
+
+        tv = [t]
+        psiv = [psi]
 
         while t < tmax:
             
@@ -101,5 +144,8 @@ class ModelB:
             t += res.t
             psi = res.p
 
-        return st
+            tv.append(t)
+            psiv.append(psi)
+
+        return st, tv, psiv
 

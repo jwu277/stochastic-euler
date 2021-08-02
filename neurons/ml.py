@@ -123,11 +123,6 @@ class MorrisLecar:
 
 
     ## Neuron needs to be stochastic and have Nk defined to get MLR model
-    def gen_mlr(self):
-        return MorrisLecarR(self._phi, self._C, self._gL, self._gCa, self._gK, self._VL, self._VCa, self._VK, self._V1, self._V2, self._V3, self._V4, self._dt, self._Nk)
-
-    
-    ## Neuron needs to be stochastic and have Nk defined to get MLL model
-    def gen_mll(self):
-        return MorrisLecarLin(self._phi, self._C, self._gL, self._gCa, self._gK, self._VL, self._VCa, self._VK, self._V1, self._V2, self._V3, self._V4, self._dt, self._Nk)
+    def gen_model(self, model_cls):
+        return model_cls(self._phi, self._C, self._gL, self._gCa, self._gK, self._VL, self._VCa, self._VK, self._V1, self._V2, self._V3, self._V4, self._dt, self._Nk)
 

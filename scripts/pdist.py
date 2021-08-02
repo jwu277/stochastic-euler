@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import time
 
 
-THREADS = 6
+THREADS = 12
 
 
 def gen_neuron(dt, tmax, I_ampl, phi, Nk):
@@ -34,7 +34,7 @@ def gen_neuron(dt, tmax, I_ampl, phi, Nk):
 
     I = current.constant(tmax, dt, I_ampl)
 
-    return MorrisLecar(I, phi, C, gL, gCa, gK, VL, VCa, VK, V1, V2, V3, V4, dt, stochastic='', Nk=Nk)
+    return MorrisLecar(I, phi, C, gL, gCa, gK, VL, VCa, VK, V1, V2, V3, V4, dt, stochastic='euler', Nk=Nk)
 
 
 def cycle(neuron, v0, w0, tmax, dt, tmin, vthresh, psi):
@@ -106,14 +106,13 @@ def main():
     tmin = 10 # minimum cycle time, prevents noisy backwash
     vthresh = 20
 
-    psi = 0.018
-    trials = 1
+    psi = 0.02
+    trials = 2000
 
     t = time.time()
     tdata = cycles(neuron, v0, w0, tmax, dt, tmin, vthresh, psi, trials)
     print(f'Cycles time: {time.time() - t}')
-    print(f'P({psi}) = {tdata[0][1]}')
-    return
+    # print(f'P({psi}) = {tdata[0][1]}')
 
     # 4. Plotting
 
@@ -129,6 +128,12 @@ def main():
     plt.title(f'I = {I_ampl} | $\\phi$ = {phi} | $N_k$ = {Nk} | Trials = {trials} | $\\psi$ = {psi}')
     plt.xlabel('$P(\\psi)$')
     plt.ylabel('Relative Frequency')
+    plt.figure()
+
+    plt.scatter(tdata[:,0], tdata[:,1])
+    plt.title(f'I = {I_ampl} | $\\phi$ = {phi} | $N_k$ = {Nk} | Trials = {trials} | $\\psi$ = {psi}')
+    plt.xlabel('Cycle Time')
+    plt.ylabel('$P(\\psi)$')
 
     plt.show()
 
