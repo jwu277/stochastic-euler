@@ -61,6 +61,7 @@ def main():
     plt.plot(tv, psiv)
     plt.xlabel('t')
     plt.ylabel('$\psi$')
+    plt.title('Model B Sample Signal')
     plt.show()
 
 

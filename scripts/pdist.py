@@ -106,7 +106,7 @@ def main():
     tmin = 10 # minimum cycle time, prevents noisy backwash
     vthresh = 20
 
-    psi = 0.02
+    psi = 0.018
     trials = 2000
 
     t = time.time()
@@ -134,6 +134,13 @@ def main():
     plt.title(f'I = {I_ampl} | $\\phi$ = {phi} | $N_k$ = {Nk} | Trials = {trials} | $\\psi$ = {psi}')
     plt.xlabel('Cycle Time')
     plt.ylabel('$P(\\psi)$')
+
+    plt.figure()
+
+    plt.scatter(tdata[:,1], tdata[:,2])
+    plt.title(f'I = {I_ampl} | $\\phi$ = {phi} | $N_k$ = {Nk} | Trials = {trials} | $\\psi$ = {psi}')
+    plt.xlabel('$P(\\psi)$')
+    plt.ylabel('Spiked?')
 
     plt.show()
 

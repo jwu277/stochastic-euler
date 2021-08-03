@@ -66,7 +66,7 @@ class ModelB:
         self._p_inner_sigma = [0.1, 0.0005]
 
         self._p_outer_mu = 0.022
-        self._p_outer_sigma = 0.0008
+        self._p_outer_sigma = 0.002 # 0.0008
 
 
     def _logistic(self, psi):
