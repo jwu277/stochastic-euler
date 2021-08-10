@@ -120,7 +120,7 @@ class MorrisLecarLin:
     # x = array of phase vectors
     # t = array of times
     # Returns array of transformed vectors
-    def _og2new(self, x, t):
+    def og2new(self, x, t):
         return np.einsum('ni,nji->nj', np.dot(x - self._eq, np.transpose(self._Qinv)), self._rot2D(self._omega * t))
     
 
@@ -128,7 +128,7 @@ class MorrisLecarLin:
     # x = array of phase vectors
     # t = array of times
     # Returns array of transformed vectors
-    def _new2og(self, x, t):
+    def new2og(self, x, t):
         return np.dot(np.einsum('ni,nji->nj', x, self._rot2D(-self._omega * t)), np.transpose(self._Q)) + self._eq
 
 
@@ -140,10 +140,10 @@ class MorrisLecarLin:
         b = lambda t, x: self._b(t, x)
 
         # Essentially apply og2new on a scalar
-        x0new = self._og2new(np.array([x0]), np.array([0]))[0]
+        x0new = self.og2new(np.array([x0]), np.array([0]))[0]
 
         xv = ito.sim(a, b, tmax, self._dt, x0new, mat=True)
         tv = np.arange(xv.shape[0]) * self._dt
 
-        return self._new2og(xv, tv)
+        return self.new2og(xv, tv)
 
