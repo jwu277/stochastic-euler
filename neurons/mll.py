@@ -96,13 +96,7 @@ class MorrisLecarLin:
         u, s, vh = np.linalg.svd(self._Q, full_matrices=True)
         self._el1 = s[0]
         self._el2 = s[1]
-        print(np.linalg.cond(self._Q))
-        print(s)
-        print(u)
-        print(self._Q)
-        print(np.matmul(u, np.matmul(np.diag(s), vh)))
         self._elphi = np.arctan2(u[1][0], u[0][0])
-        print(self._elphi)
         
 
     # Deterministic Euler part

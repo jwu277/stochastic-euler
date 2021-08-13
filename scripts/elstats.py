@@ -110,6 +110,8 @@ def cycles(neuron, v0, w0, r, tmax, dt, mll, alpha, trials=1):
 
 def main():
 
+    tt = time.time()
+
     dt = 0.1
 
     I_ampl = 90
@@ -140,32 +142,48 @@ def main():
     dw = 0.004
     mll.init(eq, dv, dw)
 
-    # 3. Trials TODO
+    print(f'Initialization time: {time.time() - tt}')
+
+    # 3. Trials
 
     r = 30
     alpha = 0.0
 
     tmax = 500.0
-    trials = 1200
+    trials = 2000
 
     assert tmax <= tmax2
 
-    data = cycles(neuron, v0, w0, r, tmax, dt, mll, alpha, trials)
-    data_d = data[np.nonzero(np.logical_not(np.isnan(data[:,1])))][:,(0,1,3)]
-    data_e = data[np.nonzero(np.logical_not(np.isnan(data[:,2])))][:,(0,2,3)]
+    # 3a. Nonlinear
+    tt = time.time()
+    datan = cycles(neuron, v0, w0, r, tmax, dt, mll, alpha, trials)
+    datan_d = datan[np.nonzero(np.logical_not(np.isnan(datan[:,1])))][:,(0,1,3)]
+    datan_e = datan[np.nonzero(np.logical_not(np.isnan(datan[:,2])))][:,(0,2,3)]
+    print(f'Nonlinear cycles time: {time.time() - tt}')
+
+    # 3b. Linear
+    tt = time.time()
+    datal = cycles(mll, v0, w0, r, tmax, dt, mll, alpha, trials)
+    datal_d = datal[np.nonzero(np.logical_not(np.isnan(datal[:,1])))][:,(0,1,3)]
+    datal_e = datal[np.nonzero(np.logical_not(np.isnan(datal[:,2])))][:,(0,2,3)]
+    print(f'Linear cycles time: {time.time() - tt}')
 
     # 4. Plotting
 
-    plt.scatter(data_d[:,1], data_d[:,2])
+    plt.scatter(datan_d[:,1], datan_d[:,2], label='nonlinear')
+    plt.scatter(datal_d[:,1], datal_d[:,2], label='linear')
     plt.title(f'D Map | $\\alpha = {alpha}$ | I = {I_ampl} | $N_k$ = {Nk} | Trials = {trials}')
     plt.xlabel('$\\psi$')
     plt.ylabel('Exit Time')
+    plt.legend()
     plt.figure()
 
-    plt.scatter(data_e[:,1], data_e[:,2])
+    plt.scatter(datan_e[:,1], datan_e[:,2], label='nonlinear')
+    plt.scatter(datal_e[:,1], datal_e[:,2], label='linear')
     plt.title(f'E Map | $\\alpha = {alpha}$ | I = {I_ampl} | $N_k$ = {Nk} | Trials = {trials}')
     plt.xlabel('$\\theta$')
     plt.ylabel('Exit Time')
+    plt.legend()
 
     plt.show()
 
