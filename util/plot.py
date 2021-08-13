@@ -18,8 +18,8 @@ def tr(x, dt):
 
 # Plot smooth phase portrait
 # x = [x1(t), x2(t)]
-def pp(x, label=None):
-    plt.plot(x[:,0], x[:,1], label=label)
+def pp(x, ax=plt, **kwargs):
+    ax.plot(x[:,0], x[:,1], **kwargs)
 
 
 # Plot scattered phase portrait

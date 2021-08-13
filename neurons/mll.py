@@ -91,6 +91,18 @@ class MorrisLecarLin:
         self._Qinv = np.linalg.inv(self._Q)
 
         self._C = np.matmul(self._Qinv, G)
+
+        # Ellipse stretching and rotation parameters
+        u, s, vh = np.linalg.svd(self._Q, full_matrices=True)
+        self._el1 = s[0]
+        self._el2 = s[1]
+        print(np.linalg.cond(self._Q))
+        print(s)
+        print(u)
+        print(self._Q)
+        print(np.matmul(u, np.matmul(np.diag(s), vh)))
+        self._elphi = np.arctan2(u[1][0], u[0][0])
+        print(self._elphi)
         
 
     # Deterministic Euler part
@@ -132,6 +144,12 @@ class MorrisLecarLin:
         return np.dot(np.einsum('ni,nji->nj', x, self._rot2D(-self._omega * t)), np.transpose(self._Q)) + self._eq
 
 
+    # Converts og coordinates to 2-norms in new coordinates
+    # Returns array of 2-norms
+    def og2dist(self, x):
+        return np.linalg.norm(np.dot(x - self._eq, np.transpose(self._Qinv)), axis=1)
+
+
     # tmax = time to simulate up to
     # x0 = [v0, w0] = IC
     def signal(self, tmax, x0):
@@ -146,4 +164,16 @@ class MorrisLecarLin:
         tv = np.arange(xv.shape[0]) * self._dt
 
         return self.new2og(xv, tv)
+    
+
+    def get_Q(self):
+        return np.copy(self._Q)
+    
+
+    def get_Qinv(self):
+        return np.copy(self._Qinv)
+
+    
+    def get_ellipse_params(self):
+        return self._el1, self._el2, self._elphi
 

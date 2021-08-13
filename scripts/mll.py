@@ -32,7 +32,7 @@ def _gen_neuron(dt):
     
     tmax_I = 1500.0
 
-    Nk = 10000
+    Nk = 1000
 
     phi = 0.04
 
@@ -69,7 +69,7 @@ def main():
     mll.init(eq, dv, dw)
 
     ## 4. Generate signal ##
-    tmax = 2000.0
+    tmax = 200.0
     x0 = np.array([-25, 0.13])
 
     t = time.time()

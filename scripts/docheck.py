@@ -1,5 +1,3 @@
-## TODO: determine L and L' cutoffs ##
-
 from multiprocessing import Pool
 from neurons.ml import MorrisLecar
 from neurons.mll import MorrisLecarLin
@@ -45,7 +43,7 @@ def gen_neuron(dt, tmax, I_ampl, phi, Nk):
 
 
 def _get_dist(x, t, mll):
-    return np.linalg.norm(mll.og2new(np.array([x]), np.array([t]))[0])
+    return mll.og2dist(np.array([x]))[0]
 
 
 # returns validb, distance of offending point (in transformed coordinates)
@@ -56,15 +54,13 @@ def _is_valid(signal, v0, w0, dt, tmin, mode, mll):
     # previous crossing type
     prev = mode
 
-    pts = [np.concatenate((signal[0], [mode]))]
-
     idx2 = 0 # previous crossing index
     idx = 0
 
     while idx < signal.shape[0] - 1:
 
         if signal[idx][0] < v0 and signal[idx+1][0] >= v0:
-            pts.append(np.concatenate((signal[idx], [not prev])))
+
             # Crossing left to right
 
             if signal[idx][1] < w0 and not prev:
@@ -72,25 +68,10 @@ def _is_valid(signal, v0, w0, dt, tmin, mode, mll):
                 idx += idxmin
                 idx2 = idx
             else:
-                dist = min(_get_dist(signal[idx], idx * dt, mll), _get_dist(signal[idx2], idx2 * dt, mll))
-                if dist > 200 and abs(w0 - 0.12936) > 0.00:
-                    plt.title(f'A {mode} | {w0}')
-                    plot.pp(signal)
-                    
-                    for j in range(0, int(30 / dt), int(1 / dt)):
-                        plt.plot(*signal[j], marker='+', c=cmap(int(30 * j / int(1 / dt))))
-
-                    i = 0
-                    for pt in pts:
-                        i += 1
-                        plt.annotate(str(i), (pt[0], pt[1]))
-                        plt.plot(pt[0], pt[1], 'ro' if pt[2] else 'go')
-                    plt.show()
-                return False, dist
-                # return False, _get_dist(signal[idx], idx * dt, mll)
+                return False, min(_get_dist(signal[idx], idx * dt, mll), _get_dist(signal[idx2], idx2 * dt, mll))
         
         elif signal[idx][0] > v0 and signal[idx+1][0] <= v0:
-            pts.append(np.concatenate((signal[idx], [not prev])))
+
             # Crossing right to left
 
             if signal[idx][1] > w0 and prev:
@@ -98,22 +79,7 @@ def _is_valid(signal, v0, w0, dt, tmin, mode, mll):
                 idx += idxmin
                 idx2 = idx
             else:
-                dist = min(_get_dist(signal[idx], idx * dt, mll), _get_dist(signal[idx2], idx2 * dt, mll))
-                if dist > 200 and abs(w0 - 0.12936) > 0.00:
-                    plt.title(f'B {mode} | {w0}')
-                    plot.pp(signal)
-
-                    for j in range(0, int(30 / dt), int(1 / dt)):
-                        plt.plot(*signal[j], marker='+', c=cmap(int(30 * j / int(1 / dt))))
-
-                    i = 0
-                    for pt in pts:
-                        i += 1
-                        plt.annotate(str(i), (pt[0], pt[1]))
-                        plt.plot(pt[0], pt[1], 'ro' if pt[2] else 'go')
-                    plt.show()
-                return False, dist
-                # return False, _get_dist(signal[idx], idx * dt, mll)
+                return False, min(_get_dist(signal[idx], idx * dt, mll), _get_dist(signal[idx2], idx2 * dt, mll))
 
         idx += 1
 
@@ -144,29 +110,6 @@ def cycles(neuron, v0, w0, tmax, dt, tmin, psi_arr, mode, mll, trials=1):
 
     with Pool(THREADS) as p:
         return np.array(list(p.map(_cycle_wrapper, zip([neuron]*n, [v0]*n, [w0]*n, [tmax]*n, [dt]*n, [tmin]*n, list(psi_arr) * trials, [mode]*n, [mll]*n))))
-
-
-# Histogram of spiking proportion vs P(psi)
-# Data = list of [p_map, spikeb]
-# binsize = histogram bin size
-# Returns bins and bin heights
-def spike_hist(data, binsize):
-
-    minp = np.amin(data[:,0])
-    maxp = np.amax(data[:,0])
-
-    # Init arrays
-    hist_spike = np.zeros(int((maxp - minp) / binsize) + 1)
-    hist_tot = np.zeros(len(hist_spike))
-
-    for entry in data:
-
-        idx = int((entry[0] - minp) / binsize)
-
-        hist_spike[idx] += entry[1]
-        hist_tot[idx] += 1
-    
-    return np.arange(len(hist_spike)) * binsize, hist_spike / hist_tot
 
 
 def main():
@@ -200,14 +143,6 @@ def main():
     dv = 0.2
     dw = 0.004
     mll.init(eq, dv, dw)
-
-    # print(np.linalg.norm(mll.og2new(np.array([eq + [0, 0.002]]), np.array([0]))))
-    # print(np.linalg.norm(mll.og2new(np.array([eq + [0, 0.005]]), np.array([0]))))
-    # print(np.linalg.norm(mll.og2new(np.array([eq + [0, 0.01]]), np.array([0]))))
-    # print(np.linalg.norm(mll.og2new(np.array([eq + [0, 0.02]]), np.array([0]))))
-    # print(np.linalg.norm(mll.og2new(np.array([eq + [0, 0.04]]), np.array([0]))))
-
-    # return
 
     # 3. Trials
 

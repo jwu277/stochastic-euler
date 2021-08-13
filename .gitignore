@@ -130,3 +130,6 @@ dmypy.json
 
 # Pickled data
 picklejar/
+
+# Sandbox
+*sandbox*
