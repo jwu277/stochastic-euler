@@ -89,14 +89,14 @@ def main():
     ax.set_ylim(0.075, 0.25)
 
     cdist = 30
-    ax.set_title(f'ULC and FPE Contours | Dist = {cdist}')
+    ax.set_title(f'ULC and FPE Contours | r = {cdist}')
 
     numpts = 1000
     theta = np.linspace(0, 2 * np.pi, numpts)
     circ = cdist * np.transpose(np.array([np.cos(theta), np.sin(theta)]))
     elpts = mll.new2og(circ, np.zeros(numpts))
 
-    ax.plot(elpts[:,0], elpts[:,1], ls='dotted', c='blue', label='Generated FPE')
+    ax.plot(elpts[:,0], elpts[:,1], ls='dotted', c='blue', label='FPE')
 
     # 5. Plot ULC
 
@@ -122,7 +122,7 @@ def main():
     psic = cdist / np.linalg.norm(mll.get_Qinv()[:,1])
     ax.scatter(v0, w0 - psic, marker='x', c='orange', label='Psi Cutoff Point')
 
-    # 7b. Alpha point
+    # 7b. Alpha points
     alpha = np.array([-3.0, -2.0, 0.0, 1.2])
     alpha_xy = mll.new2og(cdist * np.transpose(np.array([np.cos(alpha), np.sin(alpha)])), np.zeros(alpha.shape))
     ax.scatter(alpha_xy[:,0], alpha_xy[:,1], marker='x', c='g', label=f'$\\alpha$ points', zorder=1.2)

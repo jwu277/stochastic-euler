@@ -162,10 +162,10 @@ def main():
 
     # 3b. L' section
     mode = False
-    psi_range = np.linspace(0, 0.02, 10)
+    psip_range = np.linspace(0, 0.02, 10)
 
     t = time.time()
-    lpdata = cycles(neuron, v0, w0, tmax, dt, tmin, psi_range, mode, mll, trials)
+    lpdata = cycles(neuron, v0, w0, tmax, dt, tmin, psip_range, mode, mll, trials)
     lpdata = lpdata[lpdata[:,0].argsort()]
     print(f'L\' time: {time.time() - t}')
 
@@ -188,8 +188,8 @@ def main():
     plt.figure()
 
     plt.hist(offdist)
-    plt.title(f'I = {I_ampl} | $N_k$ = {Nk} | Trials = {trials}')
-    plt.xlabel('Offending Transformed Distance')
+    plt.title(f'I = {I_ampl} | $N_k$ = {Nk} | Trials = {trials * (len(psi_range) + len(psip_range))}')
+    plt.xlabel('Offending Distance')
     plt.ylabel('Occurences')
 
     plt.show()

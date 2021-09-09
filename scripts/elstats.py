@@ -166,7 +166,7 @@ def main():
     alpha = 0.0
 
     tmax = 500.0
-    trials = 40
+    trials = 200
 
     assert tmax <= tmax2
 
