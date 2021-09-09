@@ -156,11 +156,8 @@ def main():
     dw = 0.004
     mll.init(eq, dv, dw)
 
-<<<<<<< HEAD
-=======
     mlj.init(eq)
 
->>>>>>> dc1b824002d9dc55c93213acc1474dfa6b1a3c5b
     print(f'Initialization time: {time.time() - tt}')
 
     # 3. Trials
@@ -169,34 +166,11 @@ def main():
     alpha = 0.0
 
     tmax = 500.0
-<<<<<<< HEAD
-    trials = 2000
-=======
     trials = 200
->>>>>>> dc1b824002d9dc55c93213acc1474dfa6b1a3c5b
 
     assert tmax <= tmax2
 
     # 3a. Nonlinear
-<<<<<<< HEAD
-    tt = time.time()
-    datan = cycles(neuron, v0, w0, r, tmax, dt, mll, alpha, trials)
-    datan_d = datan[np.nonzero(np.logical_not(np.isnan(datan[:,1])))][:,(0,1,3)]
-    datan_e = datan[np.nonzero(np.logical_not(np.isnan(datan[:,2])))][:,(0,2,3)]
-    print(f'Nonlinear cycles time: {time.time() - tt}')
-
-    # 3b. Linear
-    tt = time.time()
-    datal = cycles(mll, v0, w0, r, tmax, dt, mll, alpha, trials)
-    datal_d = datal[np.nonzero(np.logical_not(np.isnan(datal[:,1])))][:,(0,1,3)]
-    datal_e = datal[np.nonzero(np.logical_not(np.isnan(datal[:,2])))][:,(0,2,3)]
-    print(f'Linear cycles time: {time.time() - tt}')
-
-    # 4. Plotting
-
-    plt.scatter(datan_d[:,1], datan_d[:,2], label='nonlinear')
-    plt.scatter(datal_d[:,1], datal_d[:,2], label='linear')
-=======
     datan, datan_d, datan_e = cycles_wrapper('Nonlinear', neuron, v0, w0, r, tmax, dt, mll, alpha, trials)
 
     # 3b. Linear
@@ -210,21 +184,15 @@ def main():
     plt.scatter(datan_d[:,1], datan_d[:,2], label='Nonlinear')
     plt.scatter(datal_d[:,1], datal_d[:,2], label='Linear')
     plt.scatter(dataj_d[:,1], dataj_d[:,2], label='Jacobi')
->>>>>>> dc1b824002d9dc55c93213acc1474dfa6b1a3c5b
     plt.title(f'D Map | $\\alpha = {alpha}$ | I = {I_ampl} | $N_k$ = {Nk} | Trials = {trials}')
     plt.xlabel('$\\psi$')
     plt.ylabel('Exit Time')
     plt.legend()
     plt.figure()
 
-<<<<<<< HEAD
-    plt.scatter(datan_e[:,1], datan_e[:,2], label='nonlinear')
-    plt.scatter(datal_e[:,1], datal_e[:,2], label='linear')
-=======
     plt.scatter(datan_e[:,1], datan_e[:,2], label='Nonlinear')
     plt.scatter(datal_e[:,1], datal_e[:,2], label='Linear')
     plt.scatter(dataj_e[:,1], dataj_e[:,2], label='Jacobi')
->>>>>>> dc1b824002d9dc55c93213acc1474dfa6b1a3c5b
     plt.title(f'E Map | $\\alpha = {alpha}$ | I = {I_ampl} | $N_k$ = {Nk} | Trials = {trials}')
     plt.xlabel('$\\theta$')
     plt.ylabel('Exit Time')
