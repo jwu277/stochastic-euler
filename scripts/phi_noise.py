@@ -42,12 +42,12 @@ def trial(I_ampl, phi, Nk, dt, tmax):
 def main():
 
     dt = 0.1
-    tmax = 100000.0
+    tmax = 1000.0
 
     I_ampl = 90
 
     sig = trial(I_ampl, 0.04, 500, dt, tmax)
-    np.save('picklejar/phi_noise_t4.npy', sig)
+    np.save('picklejar/phi_noise_t99.npy', sig) # save to desired directory
 
 
 if __name__ == "__main__":

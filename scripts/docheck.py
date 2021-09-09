@@ -162,7 +162,7 @@ def main():
 
     # 3b. L' section
     mode = False
-    psi_range = np.linspace(0, 0.1, 10)
+    psi_range = np.linspace(0, 0.02, 10)
 
     t = time.time()
     lpdata = cycles(neuron, v0, w0, tmax, dt, tmin, psi_range, mode, mll, trials)

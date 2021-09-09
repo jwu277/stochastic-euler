@@ -14,7 +14,7 @@ class MorrisLecarR:
     ## beta = 0.5 * phi * cosh((v - V3) / (2 * V4)) * (1 - tanh((v - V3) / V4))
     ## dv = f(v, w) dt
     ## dw = g(v, w) dt + h(v, w) dBt
-    def __init__(self, phi, C, gL, gCa, gK, VL, VCa, VK, V1, V2, V3, V4, dt, Nk):
+    def __init__(self, I, phi, C, gL, gCa, gK, VL, VCa, VK, V1, V2, V3, V4, dt, Nk):
 
         self._phi = phi
         self._C = C

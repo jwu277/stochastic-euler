@@ -84,51 +84,34 @@ def main():
 
     ax.set_xlabel('v')
     ax.set_ylabel('w')
-    
-    ax.set_xlim(-40, -10)
-    ax.set_ylim(0.075, 0.25)
+
+    ax.set_xlim(-35, -15)
+    ax.set_ylim(0.09, 0.18)
 
     cdist = 30
-    ax.set_title(f'ULC and FPE Contours | Dist = {cdist}')
 
     numpts = 1000
     theta = np.linspace(0, 2 * np.pi, numpts)
     circ = cdist * np.transpose(np.array([np.cos(theta), np.sin(theta)]))
     elpts = mll.new2og(circ, np.zeros(numpts))
 
-    ax.plot(elpts[:,0], elpts[:,1], ls='dotted', c='blue', label='Generated FPE')
+    ax.plot(elpts[:,0], elpts[:,1], ls='dotted', c='blue', label='FPE')
 
-    # 5. Plot ULC
+    cdist = 50
 
-    # Run signal in reverse time from t1 to t2
-    x0 = np.array([v0, w0 - 0.017])
-    t1 = 500
-    t2 = 610
+    numpts = 1000
+    theta = np.linspace(0, 2 * np.pi, numpts)
+    circ = cdist * np.transpose(np.array([np.cos(theta), np.sin(theta)]))
+    elpts = mll.new2og(circ, np.zeros(numpts))
 
-    assert t2 <= tmax
+    ax.plot(elpts[:,0], elpts[:,1], ls='dashed', c='darkgreen', label='Hypothetical $\\Sigma$')
 
-    neuron.set_time_dir(-1)
-    signal = neuron.signal(t2, x0)[int(t1/dt):]
-    neuron.set_time_dir(1)
-
-    plot.pp(signal, ax=ax, label='ULC', c='k', ls='--')
+    # 5. Plot L
+    wv = np.arange(0.1, w0, 0.001)
+    ax.plot([v0] * len(wv), wv, ls='dashdot', c='gray', label='$L$')
 
     # 6. Plot equilibrium point
     ax.scatter(*eq, marker='x', c='r', label='Fixed Point')
-
-    # 7. Plot misc points
-
-    # 7a. Psi cutoff point
-    psic = cdist / np.linalg.norm(mll.get_Qinv()[:,1])
-    ax.scatter(v0, w0 - psic, marker='x', c='orange', label='Psi Cutoff Point')
-
-    # 7b. Alpha point
-    alpha = np.array([-3.0, -2.0, 0.0, 1.2])
-    alpha_xy = mll.new2og(cdist * np.transpose(np.array([np.cos(alpha), np.sin(alpha)])), np.zeros(alpha.shape))
-    ax.scatter(alpha_xy[:,0], alpha_xy[:,1], marker='x', c='g', label=f'$\\alpha$ points', zorder=1.2)
-
-    for i in range(len(alpha)):
-        ax.annotate(f'{alpha[i]}', tuple(alpha_xy[i]), zorder=1.2)
 
     ax.legend(loc='lower right')
     plt.show()

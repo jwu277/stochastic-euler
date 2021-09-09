@@ -135,6 +135,8 @@ class ModelB:
             elif psi < self._psi_b:
                 # Distinct subthreshold #
                 fn = self._ds
+                # TODO: should append a spiking time if DS oscillation spiked.
+                #       Or better yet, change this to Model B2 (i.e. merge DS and SO states)
             else:
                 # Spiking oscillations #
                 fn = self._so

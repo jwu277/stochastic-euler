@@ -3,12 +3,11 @@ from util import current
 import numpy as np
 from util.ml import *
 import matplotlib.pyplot as plt
-from multiprocessing import Pool, Lock
+from multiprocessing import Pool
 import time
 
 
 THREADS = 12
-lock = Lock()
 
 
 def trial(Nk, dt, tmax):
