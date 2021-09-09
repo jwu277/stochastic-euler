@@ -14,7 +14,7 @@ class MorrisLecarLin:
     ## beta = 0.5 * phi * cosh((v - V3) / (2 * V4)) * (1 - tanh((v - V3) / V4))
     ## dv = f(v, w) dt
     ## dw = g(v, w) dt + h(v, w) dBt
-    def __init__(self, phi, C, gL, gCa, gK, VL, VCa, VK, V1, V2, V3, V4, dt, Nk):
+    def __init__(self, I, phi, C, gL, gCa, gK, VL, VCa, VK, V1, V2, V3, V4, dt, Nk):
 
         self._phi = phi
         self._C = C
@@ -68,7 +68,7 @@ class MorrisLecarLin:
         return np.sqrt(alpha * (1 - w) + beta * w) / np.sqrt(self._Nk)
 
 
-    ## Initializes MLQ model parameters
+    ## Initializes MLL model parameters
     ## eq = stable fixed point
     ## dv = v increment for pderiv
     ## dw = w increment for pderiv
@@ -96,13 +96,7 @@ class MorrisLecarLin:
         u, s, vh = np.linalg.svd(self._Q, full_matrices=True)
         self._el1 = s[0]
         self._el2 = s[1]
-        print(np.linalg.cond(self._Q))
-        print(s)
-        print(u)
-        print(self._Q)
-        print(np.matmul(u, np.matmul(np.diag(s), vh)))
         self._elphi = np.arctan2(u[1][0], u[0][0])
-        print(self._elphi)
         
 
     # Deterministic Euler part

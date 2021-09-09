@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 
 from neurons.ml import MorrisLecar
 from neurons.mll import MorrisLecarLin
+from neurons.mlj import MorrisLecarJacobi
 
 from util import current
 from util import dyn
@@ -32,7 +33,7 @@ def _gen_neuron(dt):
     
     tmax_I = 1500.0
 
-    Nk = 1000
+    Nk = np.Inf
 
     phi = 0.04
 
@@ -59,36 +60,59 @@ def main():
     dt = 0.1
     neuron = _gen_neuron(dt)
     mll = neuron.gen_model(MorrisLecarLin)
+    mlj = neuron.gen_model(MorrisLecarJacobi)
 
     ## 2. Get equilibrium point ##
     eq = _get_eq(neuron, dt)
+
+    ## 3. Initialize neurons ##
+
     dv = 0.2
     dw = 0.002
-
-    ## 3. Initialize MLL ##
     mll.init(eq, dv, dw)
 
-    ## 4. Generate signal ##
-    tmax = 200.0
-    x0 = np.array([-25, 0.13])
+    mlj.init(eq)
 
+    ## 4. Generate signal ##
+    
+    tmax = 200.0
+
+    ## 4a. IC ##
+    cdist = 30.0
+    alpha = 0.0
+    x0 = mll.new2og(cdist * np.array([[np.cos(alpha), np.sin(alpha)]]), np.array([0]))[0]
+
+    ## 4b. Compute trajectories ##
     t = time.time()
-    x = mll.signal(tmax, x0)
+    xn = neuron.signal(tmax, x0)
+    xl = mll.signal(tmax, x0)
+    xj = mlj.signal(tmax, x0)
     print(f'Computation time: {time.time() - t}')
 
     ## 5. Plot results ##
 
-    plot.tr(x[:,0], dt)
-    plt.xlabel('t')
-    plt.ylabel('v')
+    ## 5a. Plot ellipse ##
 
-    plt.figure()
+    fig, ax = plt.subplots()
 
-    plot.pp(x)
-    # plot.pp_scatter(x, c='heatmap', s=10)
-    # plot.pp_scatter(x, step=20, s=40, c='r')
-    plt.xlabel('v')
-    plt.ylabel('w')
+    ax.set_title('Deterministic Trajectories')
+    ax.set_xlabel('v')
+    ax.set_ylabel('w')
+    
+    numpts = 1000
+    theta = np.linspace(0, 2 * np.pi, numpts)
+    circ = cdist * np.transpose(np.array([np.cos(theta), np.sin(theta)]))
+    elpts = mll.new2og(circ, np.zeros(numpts))
+
+    ax.plot(elpts[:,0], elpts[:,1], ls='dotted', c='blue', label='Generated FPE')
+
+    ## 5b. Plot trajectories ##
+
+    plot.pp(xn, ax=ax, label='Nonlinear')
+    plot.pp(xl, ax=ax, label='Linear')
+    # plot.pp(xj, label='Jacobi')
+
+    ax.legend()
     plt.show()
 
 

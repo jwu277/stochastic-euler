@@ -1,14 +1,20 @@
 ## Ellipse statistics for fixed starting point ##
 
+
 from multiprocessing import Pool
+
+import numpy as np
+
 from neurons.ml import MorrisLecar
 from neurons.mll import MorrisLecarLin
+from neurons.mlj import MorrisLecarJacobi
+
 from util import current
-import numpy as np
-from util import plot
 from util.ml import *
 from util.dyn import *
+
 import matplotlib.pyplot as plt
+from util import plot
 
 import time
 
@@ -40,10 +46,6 @@ def gen_neuron(dt, tmax, I_ampl, phi, Nk):
     return MorrisLecar(I, phi, C, gL, gCa, gK, VL, VCa, VK, V1, V2, V3, V4, dt, stochastic='euler', Nk=Nk)
 
 
-def _get_dist(x, mll):
-    return mll.og2dist(x)
-
-
 # Detects exit point
 # Returns: psi, theta, t
 #          None if value is not applicable
@@ -65,7 +67,7 @@ def _get_exit(signal, v0, w0, r, dt, mll):
         # Check E crossing
         if signal[i][0] > v0 and dist[i] <= r and dist[i+1] > r:
             t = i * dt
-            newvec = mll.og2new(np.array([signal[i]]), np.array([t]))[0]
+            newvec = mll.og2new(np.array([signal[i]]), np.array([0]))[0]
             theta = np.arctan2(newvec[1], newvec[0])
             break
 
@@ -108,7 +110,20 @@ def cycles(neuron, v0, w0, r, tmax, dt, mll, alpha, trials=1):
         return np.array(list(p.map(_cycle_wrapper, [(neuron, v0, w0, r, tmax, dt, mll, alpha)] * trials)))
 
 
+def cycles_wrapper(type, neuron, v0, w0, r, tmax, dt, mll, alpha, trials=1):
+
+    tt = time.time()
+    data = cycles(neuron, v0, w0, r, tmax, dt, mll, alpha, trials)
+    data_d = data[np.nonzero(np.logical_not(np.isnan(data[:,1])))][:,(0,1,3)]
+    data_e = data[np.nonzero(np.logical_not(np.isnan(data[:,2])))][:,(0,2,3)]
+    print(f'{type} cycles time: {time.time() - tt}')
+
+    return data, data_d, data_e
+
+
 def main():
+
+    tt = time.time()
 
     dt = 0.1
 
@@ -123,6 +138,7 @@ def main():
     # 1. Generate neurons
     neuron = gen_neuron(dt, tmax2, I_ampl, phi, Nk)
     mll = neuron.gen_model(MorrisLecarLin)
+    mlj = neuron.gen_model(MorrisLecarJacobi)
 
     # 2. Find fixed point
     eq0 = np.array([-30, 0.13])
@@ -140,32 +156,47 @@ def main():
     dw = 0.004
     mll.init(eq, dv, dw)
 
-    # 3. Trials TODO
+    mlj.init(eq)
+
+    print(f'Initialization time: {time.time() - tt}')
+
+    # 3. Trials
 
     r = 30
     alpha = 0.0
 
     tmax = 500.0
-    trials = 1200
+    trials = 200
 
     assert tmax <= tmax2
 
-    data = cycles(neuron, v0, w0, r, tmax, dt, mll, alpha, trials)
-    data_d = data[np.nonzero(np.logical_not(np.isnan(data[:,1])))][:,(0,1,3)]
-    data_e = data[np.nonzero(np.logical_not(np.isnan(data[:,2])))][:,(0,2,3)]
+    # 3a. Nonlinear
+    datan, datan_d, datan_e = cycles_wrapper('Nonlinear', neuron, v0, w0, r, tmax, dt, mll, alpha, trials)
+
+    # 3b. Linear
+    datal, datal_d, datal_e = cycles_wrapper('Linear', neuron, v0, w0, r, tmax, dt, mll, alpha, trials)
+
+    # 3c. Jacobi
+    dataj, dataj_d, dataj_e = cycles_wrapper('Jacobi', neuron, v0, w0, r, tmax, dt, mll, alpha, trials)
 
     # 4. Plotting
 
-    plt.scatter(data_d[:,1], data_d[:,2])
+    plt.scatter(datan_d[:,1], datan_d[:,2], label='Nonlinear')
+    plt.scatter(datal_d[:,1], datal_d[:,2], label='Linear')
+    plt.scatter(dataj_d[:,1], dataj_d[:,2], label='Jacobi')
     plt.title(f'D Map | $\\alpha = {alpha}$ | I = {I_ampl} | $N_k$ = {Nk} | Trials = {trials}')
     plt.xlabel('$\\psi$')
     plt.ylabel('Exit Time')
+    plt.legend()
     plt.figure()
 
-    plt.scatter(data_e[:,1], data_e[:,2])
+    plt.scatter(datan_e[:,1], datan_e[:,2], label='Nonlinear')
+    plt.scatter(datal_e[:,1], datal_e[:,2], label='Linear')
+    plt.scatter(dataj_e[:,1], dataj_e[:,2], label='Jacobi')
     plt.title(f'E Map | $\\alpha = {alpha}$ | I = {I_ampl} | $N_k$ = {Nk} | Trials = {trials}')
     plt.xlabel('$\\theta$')
     plt.ylabel('Exit Time')
+    plt.legend()
 
     plt.show()
 
