@@ -86,9 +86,12 @@ def main():
 
     ## 4. Perform trials ##
     
-    psi0 = 0.001
-    psic = 0.01
+    # Let L(psi) be the point on the Poincare section L parametrized by psi
+    psi0 = 0.001 # starting point = L(psi0)
+    psic = 0.01 # cutoff distance = distance of L(psic) in the transformed MLR space (not v,w space)
     ntrials = 50000
+    
+    # Time taken for system to exit (i.e. exceed cutoff distance) is measured
     
     t = time.time()
     data = _trials(mlr, psi0, psic, ntrials)

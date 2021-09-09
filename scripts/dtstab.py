@@ -42,12 +42,12 @@ def trial(dt, method):
 
 def main():
 
-    plot.pp(trial(0.2, 'SE'), '0.2, SE')
-    plot.pp(trial(0.2, 'RK45'), '0.2, RK45')
-    plot.pp(trial(0.1, 'SE'), '0.1, SE')
-    plot.pp(trial(0.1, 'RK45'), '0.1, RK45')
-    plot.pp(trial(0.05, 'SE'), '0.05, SE')
-    plot.pp(trial(0.05, 'RK45'), '0.05, RK45')
+    plot.pp(trial(0.2, 'SE'), label='0.2, SE')
+    plot.pp(trial(0.2, 'RK45'), label='0.2, RK45')
+    plot.pp(trial(0.1, 'SE'), label='0.1, SE')
+    plot.pp(trial(0.1, 'RK45'), label='0.1, RK45')
+    plot.pp(trial(0.05, 'SE'), label='0.05, SE')
+    plot.pp(trial(0.05, 'RK45'), label='0.05, RK45')
 
     plt.xlabel('v')
     plt.ylabel('w')

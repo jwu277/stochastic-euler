@@ -1,7 +1,6 @@
 ### Binary Markov Neuron Model ###
 
 
-from util import ito
 import numpy as np
 from scipy.stats import uniform
 

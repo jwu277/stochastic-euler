@@ -1,13 +1,9 @@
 from neurons.izhikevich import Izhikevich
+import numpy as np
 from util import isi
+from util import current
 from scipy.stats import uniform
 import matplotlib.pyplot as plt
-
-
-## Generates Poisson point process delta function signals
-def _poisson(tmax, t_avg, dt):
-    rvs = uniform.rvs(size=int(tmax / dt) + 1)
-    return (1 / dt) * (rvs < dt / t_avg)
 
 
 def main():
@@ -22,17 +18,19 @@ def main():
 
     t_avg = 60.0e-6
     I_ampl = 120.0
-    I = I_ampl * _poisson(tmax, t_avg, dt)
+    I = I_ampl * current.poisson(tmax, t_avg, dt)
 
     neuron = Izhikevich(a, b, c, d, I, dt)
 
-    # plt.plot(np.arange(0, tmax + dt, dt), neuron.signal(tmax)[:,0])
-    # plt.show()
+    sig = neuron.signal(tmax)[:,0]
 
-    _isi = isi.isi(isi.spike_times_th(neuron.signal(tmax)[:,0], dt, neuron.V_TH))
+    plt.plot(np.arange(0, tmax, dt), sig)
+    plt.show()
+
+    _isi = isi.isi(isi.spike_times_th(sig, dt, neuron.V_TH))
 
     # Actual
-    plt.hist(_isi, bins=160, range=(0, 6.0e-4))
+    plt.hist(_isi, bins=160, range=(0, 6.0))
 
     plt.show()
 

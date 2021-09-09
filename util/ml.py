@@ -16,7 +16,6 @@ def get_orbit_times(signal, psection):
 
 
 # Gets orbit times (indices) by looking at V-maxima
-# w should be increasing at these maxima
 # vdiff = minimum difference between maxima and minima
 def get_orbit_times2(signal, vdiff):
 
@@ -27,7 +26,6 @@ def get_orbit_times2(signal, vdiff):
     for i in range(len(v) - 2):
         if v[i] < v[i+1] and v[i+1] > v[i+2]:
 
-            # w should be decreasing at next minima for a valid orbit
             j = 0
 
             while i + j < len(v) - 2:
@@ -90,6 +88,8 @@ def get_spike_times2(signal, vdiff, sthresh):
 
 
 # Gets ISIs
+# vdiff = minimum difference between maxima and minima
+# sthresh = voltage threshold for maxima to count as spiking
 def get_isi2(signal, vdiff, sthresh, dt):
     return np.diff(get_spike_times2(signal, vdiff, sthresh)) * dt
 

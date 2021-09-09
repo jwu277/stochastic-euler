@@ -16,20 +16,20 @@ def main():
     t1 = int(1000 / dt)
     t2 = int(2000 / dt)
 
-    sig = np.load('picklejar/phi_noise_t6.npy')
-    # isi = get_isi2(sig, vdiff, sthresh, dt)
+    sig = np.load('picklejar/phi_noise_t4.npy')
+    isi = get_isi2(sig, vdiff, sthresh, dt)
 
     # print(isi.shape)
 
     # plt.hist(isi, bins=100, range=(0, 600))
 
-    # ot = get_orbit_times2(sig, vdiff)
+    ot = get_orbit_times2(sig, vdiff)
 
-    # plot.tr(sig[:,0], dt)
-    # plt.xlabel('t')
-    # plt.ylabel('v')
+    plot.tr(sig[:,0], dt)
+    plt.xlabel('t')
+    plt.ylabel('v')
 
-    # spiked = True
+    spiked = True
 
     # for i in range(len(ot) - 1):
     #     if is_spike2(sig[ot[i]:ot[i+1]], sthresh):
@@ -56,20 +56,20 @@ def main():
     # plt.ylabel('# Occurences')
 
     # Animated pp
-    fig, ax = plt.subplots()
+    # fig, ax = plt.subplots()
 
-    t = np.arange(t1, t2) * dt
-    line, = ax.plot(sig[t1:t2,0], sig[t1:t2,1])
+    # t = np.arange(t1, t2) * dt
+    # line, = ax.plot(sig[t1:t2,0], sig[t1:t2,1])
 
-    def animate(t_idx):
-        line.set_xdata(sig[t1:t_idx,0])
-        line.set_ydata(sig[t1:t_idx,1])
+    # def animate(t_idx):
+    #     line.set_xdata(sig[t1:t_idx,0])
+    #     line.set_ydata(sig[t1:t_idx,1])
 
-    plt.xlabel('v')
-    plt.ylabel('w')
+    # plt.xlabel('v')
+    # plt.ylabel('w')
     
-    ani = animation.FuncAnimation(fig, animate, np.arange(t1, t2, 200))
-    ani.save('poincare_unstable.gif', writer='imagemagick', fps=60)
+    # ani = animation.FuncAnimation(fig, animate, np.arange(t1, t2, 200))
+    # ani.save('poincare_unstable.gif', writer='imagemagick', fps=60)
 
     plt.show()
 

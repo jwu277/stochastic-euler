@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from neurons.ml import MorrisLecar
-from neurons.mll import MorrisLecarLin
+from neurons.mlj import MorrisLecarJacobi
 
 from util import current
 from util import dyn
@@ -58,22 +58,20 @@ def main():
     ## 1. Generate neurons ##
     dt = 0.1
     neuron = _gen_neuron(dt)
-    mll = neuron.gen_model(MorrisLecarLin)
+    mlj = neuron.gen_model(MorrisLecarJacobi)
 
     ## 2. Get equilibrium point ##
     eq = _get_eq(neuron, dt)
-    dv = 0.2
-    dw = 0.002
 
-    ## 3. Initialize MLL ##
-    mll.init(eq, dv, dw)
+    ## 3. Initialize MLJ ##
+    mlj.init(eq)
 
     ## 4. Generate signal ##
     tmax = 200.0
     x0 = np.array([-25, 0.13])
 
     t = time.time()
-    x = mll.signal(tmax, x0)
+    x = mlj.signal(tmax, x0)
     print(f'Computation time: {time.time() - t}')
 
     ## 5. Plot results ##

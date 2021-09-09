@@ -3,7 +3,6 @@
 
 import numpy as np
 from scipy.stats import norm
-import matplotlib.pyplot as plt
 
 
 ## Simulation function
@@ -35,23 +34,4 @@ def sim(a, b, tmax, dt, X0=0, mat=False):
             X[i] = X[i-1] + a(i * dt, X[i-1]) * dt + b(i * dt, X[i-1]) * np.sqrt(np.heaviside(dt, 0)) * N[i]
     
     return X
-
-
-def main():
-
-    tmax = 10
-    dt = 0.0011
-
-    a = lambda t, x: 0.5
-    b = lambda t, x: 1
-
-    t = np.arange(0, tmax, dt)
-    B = sim(a, b, tmax, dt)
-
-    plt.plot(t, B)
-    plt.show()
-
-
-if __name__ == "__main__":
-    main()
 

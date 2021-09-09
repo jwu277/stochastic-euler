@@ -5,8 +5,6 @@ from util import ito
 from util import integrate
 import numpy as np
 from scipy.stats import binom
-from neurons.mlr import MorrisLecarR
-from neurons.mll import MorrisLecarLin
 
 
 class MorrisLecar:
@@ -101,6 +99,7 @@ class MorrisLecar:
     # Sets time direction
     # +1 = forwards
     # -1 = backwards
+    # Note: backwards operation can be useful for getting the unstable limit cycle
     def set_time_dir(self, dir):
         self._dt = dir * abs(self._dt)
         if dir < 0:
@@ -124,5 +123,5 @@ class MorrisLecar:
 
     ## Neuron needs to be stochastic and have Nk defined to get MLR model
     def gen_model(self, model_cls):
-        return model_cls(self._phi, self._C, self._gL, self._gCa, self._gK, self._VL, self._VCa, self._VK, self._V1, self._V2, self._V3, self._V4, self._dt, self._Nk)
+        return model_cls(self._I, self._phi, self._C, self._gL, self._gCa, self._gK, self._VL, self._VCa, self._VK, self._V1, self._V2, self._V3, self._V4, self._dt, self._Nk)
 

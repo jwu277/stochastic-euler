@@ -131,7 +131,7 @@ def main():
     I_ampl = 90
     phi = 0.04
     
-    Nk = 2000000
+    Nk = 2000
 
     tmax1 = 500.0
     tmax2 = 550.0
@@ -164,7 +164,7 @@ def main():
 
     delta = 0.02
     psi_range = np.linspace(max(psi_ulc - delta, 0), psi_ulc + delta, 40)
-    trials = 50
+    trials = 100
 
     t = time.time()
     pdata = cycles(neuron, v0, w0, tmax, dt, tmin, vthresh, psi_range, trials)
